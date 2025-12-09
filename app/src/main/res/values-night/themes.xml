@@ -1,0 +1,134 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- ============================================ -->
+    <!-- 🎬 STREAMING APP THEME - DARK MODE -->
+    <!-- ============================================ -->
+    
+    <style name="Base.Theme.Ensenando"
+        parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        
+        <!-- Primary Colors (Streaming Red - más vibrante en dark) -->
+        <item name="colorPrimary">@color/streaming_red_vibrant</item>
+        <item name="colorPrimaryVariant">@color/streaming_red</item>
+        <item name="colorOnPrimary">@color/white</item>
+        
+        <!-- Secondary Colors (más claros en dark) -->
+        <item name="colorSecondary">@color/uleam_primary</item>
+        <item name="colorSecondaryVariant">@color/uleam_primary_light</item>
+        <item name="colorOnSecondary">@color/white</item>
+        
+        <!-- Background Colors (Dark Theme) -->
+        <item name="android:colorBackground">@color/background_primary_light</item>
+        <item name="colorSurface">@color/surface_light</item>
+        <item name="colorSurfaceVariant">@color/surface_variant_light</item>
+        
+        <!-- Text Colors (High Contrast - White on Dark) -->
+        <item name="colorOnBackground">@color/text_primary_light</item>
+        <item name="colorOnSurface">@color/text_primary_light</item>
+        <item name="android:textColorPrimary">@color/text_primary_light</item>
+        <item name="android:textColorSecondary">@color/text_secondary_light</item>
+        
+        <!-- Error Colors -->
+        <item name="colorError">@color/accent_error</item>
+        <item name="colorOnError">@color/white</item>
+        
+        <!-- Window & Status Bar -->
+        <item name="android:windowBackground">@color/background_primary_light</item>
+        <item name="android:statusBarColor">@color/background_primary_light</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+        <item name="android:navigationBarColor">@color/background_primary_light</item>
+        
+    </style>
+    
+    <!-- ============================================ -->
+    <!-- 🎬 BUTTON STYLES - DARK MODE -->
+    <!-- ============================================ -->
+    
+    <style name="Widget.Ensenando.Button.Primary" parent="Widget.MaterialComponents.Button">
+        <item name="android:layout_height">56dp</item>
+        <item name="android:minHeight">56dp</item>
+        <item name="android:paddingStart">24dp</item>
+        <item name="android:paddingEnd">24dp</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="backgroundTint">@color/streaming_red_vibrant</item>
+        <item name="android:elevation">6dp</item>
+    </style>
+    
+    <style name="Widget.Ensenando.Button.Secondary" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:layout_height">56dp</item>
+        <item name="android:minHeight">56dp</item>
+        <item name="android:paddingStart">24dp</item>
+        <item name="android:paddingEnd">24dp</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/streaming_red_vibrant</item>
+        <item name="strokeColor">@color/streaming_red_vibrant</item>
+        <item name="strokeWidth">2dp</item>
+        <item name="android:backgroundTint">@android:color/transparent</item>
+        <item name="android:elevation">0dp</item>
+    </style>
+    
+    <!-- ============================================ -->
+    <!-- 🎬 CARD STYLES - DARK MODE -->
+    <!-- ============================================ -->
+    
+    <style name="CardStyle" parent="Widget.MaterialComponents.CardView">
+        <item name="android:layout_margin">8dp</item>
+        <item name="cardCornerRadius">16dp</item>
+        <item name="cardElevation">8dp</item>
+        <item name="cardBackgroundColor">@color/card_background_light</item>
+        <item name="strokeWidth">0dp</item>
+    </style>
+    
+    <!-- ============================================ -->
+    <!-- 🎬 TYPOGRAPHY - DARK MODE -->
+    <!-- ============================================ -->
+    
+    <style name="TextAppearance.Headline1" parent="TextAppearance.MaterialComponents.Headline1">
+        <item name="android:textSize">32sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text_primary_light</item>
+        <item name="android:letterSpacing">-0.01</item>
+    </style>
+    
+    <style name="TextAppearance.Headline2" parent="TextAppearance.MaterialComponents.Headline2">
+        <item name="android:textSize">24sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text_primary_light</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+    
+    <style name="TextAppearance.Headline3" parent="TextAppearance.MaterialComponents.Headline3">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text_primary_light</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+    
+    <style name="TextAppearance.Body1" parent="TextAppearance.MaterialComponents.Body1">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/text_primary_light</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+    
+    <style name="TextAppearance.Body2" parent="TextAppearance.MaterialComponents.Body2">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/text_secondary_light</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+    
+    <style name="TextAppearance.Button" parent="TextAppearance.MaterialComponents.Button">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text_on_primary_light</item>
+        <item name="android:letterSpacing">0.02</item>
+    </style>
+    
+</resources>

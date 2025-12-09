@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ============================================ -->
+    <!-- PALETA BASE - STREAMING APP STYLE (DARK) -->
+    <!-- ============================================ -->
+    
+    <!-- Colores base -->
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+    
+    <!-- 🎬 STREAMING PRIMARY COLORS (Netflix/Disney+ Style) -->
+    <color name="streaming_red">#E50914</color>
+    <color name="streaming_red_dark">#B20710</color>
+    <color name="streaming_red_light">#F40612</color>
+    <color name="streaming_red_vibrant">#FF0A16</color>
+    
+    <!-- Backgrounds - Dark Theme -->
+    <color name="background_primary_light">#0D0D0D</color>
+    <color name="background_secondary_light">#121212</color>
+    <color name="background_tertiary_light">#1A1A1A</color>
+    
+    <!-- Cards - Dark Theme -->
+    <color name="card_background_light">#1F1F1F</color>
+    <color name="card_background_elevated_light">#2A2A2A</color>
+    
+    <!-- Text Colors - Dark Theme (High Contrast WCAG AAA) -->
+    <color name="text_primary_light">#FFFFFF</color>
+    <color name="text_secondary_light">#E0E0E0</color>
+    <color name="text_tertiary_light">#BDBDBD</color>
+    <color name="text_hint_light">#9E9E9E</color>
+    <color name="text_on_primary_light">#FFFFFF</color>
+    
+    <!-- Surface Colors - Dark Theme -->
+    <color name="surface_light">#1F1F1F</color>
+    <color name="surface_variant_light">#2A2A2A</color>
+    
+    <!-- Accent Colors -->
+    <color name="accent_primary">#E50914</color>
+    <color name="accent_secondary">#64B5F6</color>
+    <color name="accent_success">#4CAF50</color>
+    <color name="accent_warning">#FF9800</color>
+    <color name="accent_error">#F44336</color>
+    
+    <!-- Divider & Borders -->
+    <color name="divider_light">#424242</color>
+    <color name="border_light">#616161</color>
+    
+    <!-- ============================================ -->
+    <!-- COMPATIBILIDAD - Mantener colores existentes -->
+    <!-- ============================================ -->
+    
+    <!-- ULEAM Colors (mantener para compatibilidad) -->
+    <color name="uleam_primary">#64B5F6</color>
+    <color name="uleam_primary_dark">#42A5F5</color>
+    <color name="uleam_primary_light">#90CAF9</color>
+    <color name="uleam_secondary">#4DB6AC</color>
+    <color name="uleam_secondary_dark">#26A69A</color>
+    <color name="uleam_secondary_light">#80CBC4</color>
+    
+    <!-- Legacy colors (mapeados a nuevos) -->
+    <color name="background_light">@color/background_primary_light</color>
+    <color name="background_dark">@color/background_primary_light</color>
+    <color name="background_dark_2">@color/card_background_light</color>
+    <color name="card_background">@color/card_background_light</color>
+    <color name="text_primary">@color/text_primary_light</color>
+    <color name="text_secondary">@color/text_secondary_light</color>
+    <color name="text_hint">@color/text_hint_light</color>
+    <color name="divider">@color/divider_light</color>
+    <color name="success">@color/accent_success</color>
+    <color name="error">@color/accent_error</color>
+    <color name="warning">@color/accent_warning</color>
+    
+    <!-- Accent colors legacy -->
+    <color name="accent_pink">#FF6B9D</color>
+    <color name="accent_blue">#64B5F6</color>
+    <color name="blue_primary">#90CAF9</color>
+    <color name="red_primary">@color/streaming_red</color>
+    <color name="red_dark">@color/streaming_red_dark</color>
+    <color name="red_light">@color/streaming_red_light</color>
+    
+    <!-- Header -->
+    <color name="header_black">#0A0A0A</color>
+    
+    <!-- Gray scale -->
+    <color name="gray_dark">#757575</color>
+    <color name="gray_medium">#9E9E9E</color>
+    <color name="gray_light">#BDBDBD</color>
+</resources>
+

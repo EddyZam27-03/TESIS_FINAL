@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ============================================ -->
+    <!-- 🎬 MODERN INPUT STYLES - STREAMING APP -->
+    <!-- ============================================ -->
+
+    <!-- Outlined Input - Light Theme -->
+    <style name="Widget.Ensenando.TextInputLayout.OutlinedBox"
+        parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxCornerRadiusTopStart">12dp</item>
+        <item name="boxCornerRadiusTopEnd">12dp</item>
+        <item name="boxCornerRadiusBottomStart">12dp</item>
+        <item name="boxCornerRadiusBottomEnd">12dp</item>
+        <item name="boxStrokeWidth">2dp</item>
+        <item name="boxStrokeColor">@color/border_light</item>
+        <item name="boxBackgroundColor">@color/card_background_light</item>
+        <item name="hintTextColor">@color/text_hint_light</item>
+        <item name="android:textColorHint">@color/text_hint_light</item>
+        <item name="android:textColor">@color/text_primary_light</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+    
+    <!-- Filled Input - Light Theme -->
+    <style name="Widget.Ensenando.TextInputLayout.FilledBox"
+        parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
+        <item name="boxCornerRadiusTopStart">12dp</item>
+        <item name="boxCornerRadiusTopEnd">12dp</item>
+        <item name="boxCornerRadiusBottomStart">12dp</item>
+        <item name="boxCornerRadiusBottomEnd">12dp</item>
+        <item name="boxBackgroundColor">@color/surface_variant_light</item>
+        <item name="boxStrokeColor">@color/streaming_red</item>
+        <item name="boxStrokeWidth">0dp</item>
+        <item name="boxStrokeWidthFocused">2dp</item>
+        <item name="hintTextColor">@color/text_hint_light</item>
+        <item name="android:textColorHint">@color/text_hint_light</item>
+        <item name="android:textColor">@color/text_primary_light</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+    
+    <!-- Legacy Input Style (compatibilidad) -->
+    <style name="DarkOutlinedInput"
+        parent="Widget.Ensenando.TextInputLayout.OutlinedBox">
+        <item name="boxBackgroundColor">@color/card_background_light</item>
+        <item name="boxStrokeColor">@color/text_hint_light</item>
+        <item name="android:textColor">@color/text_primary_light</item>
+        <item name="hintTextColor">@color/text_hint_light</item>
+    </style>
+
+    <!-- ============================================ -->
+    <!-- 🎬 DIALOG STYLES -->
+    <!-- ============================================ -->
+    
+    <style name="FullScreenDialogStyle" parent="Theme.MaterialComponents.Dialog">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowBackground">@color/card_background_light</item>
+    </style>
+    
+    <!-- ============================================ -->
+    <!-- 🎬 APP BAR STYLES -->
+    <!-- ============================================ -->
+    
+    <!-- AppBarLayout no tiene estilo de widget, se configura directamente en layouts -->
+    
+    <!-- ============================================ -->
+    <!-- 🎬 BOTTOM NAVIGATION STYLES -->
+    <!-- ============================================ -->
+    
+    <style name="Widget.Ensenando.BottomNavigationView" parent="Widget.MaterialComponents.BottomNavigationView">
+        <item name="android:elevation">8dp</item>
+        <item name="android:background">@color/card_background_light</item>
+        <item name="itemIconTint">@color/streaming_red</item>
+        <item name="itemTextColor">@color/text_secondary_light</item>
+    </style>
+
+</resources>
