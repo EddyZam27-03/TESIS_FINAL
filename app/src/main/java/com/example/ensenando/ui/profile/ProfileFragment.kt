@@ -61,6 +61,12 @@ class ProfileFragment : Fragment() {
             if (solicitudes.isNotEmpty()) {
                 binding.tvSolicitudesTitle.visibility = View.VISIBLE
                 binding.rvSolicitudes.visibility = View.VISIBLE
+                // Actualizar título según el rol
+                binding.tvSolicitudesTitle.text = when (rol) {
+                    "estudiante" -> "Mis Solicitudes a Docentes"
+                    "docente" -> "Solicitudes de Estudiantes"
+                    else -> "Solicitudes"
+                }
             } else {
                 binding.tvSolicitudesTitle.visibility = View.GONE
                 binding.rvSolicitudes.visibility = View.GONE
@@ -140,6 +146,14 @@ class ProfileFragment : Fragment() {
                 android.widget.Toast.makeText(
                     requireContext(),
                     "Solicitud rechazada",
+                    android.widget.Toast.LENGTH_SHORT
+                ).show()
+            },
+            onEliminar = { idDocente, idEstudiante ->
+                viewModel.eliminarRelacion(idDocente, idEstudiante)
+                android.widget.Toast.makeText(
+                    requireContext(),
+                    "Relación eliminada",
                     android.widget.Toast.LENGTH_SHORT
                 ).show()
             }

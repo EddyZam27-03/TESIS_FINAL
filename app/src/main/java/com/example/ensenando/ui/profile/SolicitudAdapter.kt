@@ -17,7 +17,8 @@ class SolicitudAdapter(
     private val rol: String,
     private var nombresUsuarios: Map<Int, String> = emptyMap(),
     private val onAceptar: ((Int, Int) -> Unit)? = null,
-    private val onRechazar: ((Int, Int) -> Unit)? = null
+    private val onRechazar: ((Int, Int) -> Unit)? = null,
+    private val onEliminar: ((Int, Int) -> Unit)? = null
 ) : ListAdapter<DocenteEstudianteEntity, SolicitudAdapter.SolicitudViewHolder>(SolicitudDiffCallback()) {
     
     /**
@@ -30,7 +31,7 @@ class SolicitudAdapter(
     
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SolicitudViewHolder {
         val binding = ItemSolicitudBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return SolicitudViewHolder(binding, rol, nombresUsuarios, onAceptar, onRechazar)
+        return SolicitudViewHolder(binding, rol, nombresUsuarios, onAceptar, onRechazar, onEliminar)
     }
     
     override fun onBindViewHolder(holder: SolicitudViewHolder, position: Int) {
@@ -42,7 +43,8 @@ class SolicitudAdapter(
         private val rol: String,
         private val nombresUsuarios: Map<Int, String>,
         private val onAceptar: ((Int, Int) -> Unit)?,
-        private val onRechazar: ((Int, Int) -> Unit)?
+        private val onRechazar: ((Int, Int) -> Unit)?,
+        private val onEliminar: ((Int, Int) -> Unit)?
     ) : RecyclerView.ViewHolder(binding.root) {
         
         fun bind(solicitud: DocenteEstudianteEntity) {
@@ -87,21 +89,38 @@ class SolicitudAdapter(
                 }
             }
             
-            // Mostrar botones solo para docentes y solo si está pendiente
-            if (rol == "docente" && solicitud.estado.lowercase() == "pendiente") {
-                binding.btnAceptar.visibility = android.view.View.VISIBLE
-                binding.btnRechazar.visibility = android.view.View.VISIBLE
-                
-                binding.btnAceptar.setOnClickListener {
-                    onAceptar?.invoke(solicitud.idDocente, solicitud.idEstudiante)
+            // Mostrar botones según el rol y estado
+            when {
+                // Docentes: botones Aceptar/Rechazar solo para solicitudes pendientes
+                rol == "docente" && solicitud.estado.lowercase() == "pendiente" -> {
+                    binding.btnAceptar.visibility = android.view.View.VISIBLE
+                    binding.btnRechazar.visibility = android.view.View.VISIBLE
+                    binding.btnEliminar.visibility = android.view.View.GONE
+                    
+                    binding.btnAceptar.setOnClickListener {
+                        onAceptar?.invoke(solicitud.idDocente, solicitud.idEstudiante)
+                    }
+                    
+                    binding.btnRechazar.setOnClickListener {
+                        onRechazar?.invoke(solicitud.idDocente, solicitud.idEstudiante)
+                    }
                 }
-                
-                binding.btnRechazar.setOnClickListener {
-                    onRechazar?.invoke(solicitud.idDocente, solicitud.idEstudiante)
+                // Mostrar botón Eliminar para relaciones aceptadas (tanto estudiantes como docentes)
+                solicitud.estado.lowercase() == "aceptado" -> {
+                    binding.btnAceptar.visibility = android.view.View.GONE
+                    binding.btnRechazar.visibility = android.view.View.GONE
+                    binding.btnEliminar.visibility = android.view.View.VISIBLE
+                    
+                    binding.btnEliminar.setOnClickListener {
+                        onEliminar?.invoke(solicitud.idDocente, solicitud.idEstudiante)
+                    }
                 }
-            } else {
-                binding.btnAceptar.visibility = android.view.View.GONE
-                binding.btnRechazar.visibility = android.view.View.GONE
+                // Ocultar todos los botones para otros estados
+                else -> {
+                    binding.btnAceptar.visibility = android.view.View.GONE
+                    binding.btnRechazar.visibility = android.view.View.GONE
+                    binding.btnEliminar.visibility = android.view.View.GONE
+                }
             }
         }
     }

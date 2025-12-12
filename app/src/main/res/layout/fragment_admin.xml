@@ -77,12 +77,13 @@
                             android:inputType="text" />
                     </com.google.android.material.textfield.TextInputLayout>
 
+                    <!-- ✅ RecyclerView con altura fija y scrolleable -->
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rvDocentes"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="400dp"
                         android:layout_marginTop="8dp"
-                        android:nestedScrollingEnabled="false"
+                        android:nestedScrollingEnabled="true"
                         tools:listitem="@layout/item_docente_admin" />
 
                 </LinearLayout>
@@ -95,7 +96,7 @@
                 android:layout_marginTop="16dp"
                 android:background="@drawable/bg_card_3d"
                 app:cardCornerRadius="18dp"
-            app:cardElevation="0dp"
+                app:cardElevation="0dp"
                 app:strokeWidth="0dp">
 
                 <LinearLayout
@@ -126,12 +127,13 @@
                             android:inputType="text" />
                     </com.google.android.material.textfield.TextInputLayout>
 
+                    <!-- ✅ RecyclerView con altura fija y scrolleable -->
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rvEstudiantes"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="400dp"
                         android:layout_marginTop="8dp"
-                        android:nestedScrollingEnabled="false"
+                        android:nestedScrollingEnabled="true"
                         tools:listitem="@layout/item_estudiante_admin" />
 
                 </LinearLayout>
@@ -144,7 +146,7 @@
                 android:layout_marginTop="16dp"
                 android:background="@drawable/bg_card_3d"
                 app:cardCornerRadius="18dp"
-            app:cardElevation="0dp"
+                app:cardElevation="0dp"
                 app:strokeWidth="0dp">
 
                 <LinearLayout
@@ -160,12 +162,37 @@
                         android:textAppearance="@style/TextAppearance.Headline3"
                         android:textColor="@color/streaming_red" />
 
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rvRelaciones"
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Busque por nombre de docente o estudiante para ver relaciones"
+                        android:textAppearance="@style/TextAppearance.Body2"
+                        android:textColor="?attr/colorOnSurface" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilBuscarRelacion"
+                        style="@style/Widget.Ensenando.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:nestedScrollingEnabled="false"
+                        android:hint="Buscar relación">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etBuscarRelacion"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="text" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- ✅ RecyclerView con altura fija y scrolleable -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvRelaciones"
+                        android:layout_width="match_parent"
+                        android:layout_height="400dp"
+                        android:layout_marginTop="8dp"
+                        android:nestedScrollingEnabled="true"
+                        android:visibility="visible"
                         tools:listitem="@layout/item_relacion_admin" />
 
                 </LinearLayout>
@@ -175,5 +202,3 @@
     </androidx.core.widget.NestedScrollView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-
