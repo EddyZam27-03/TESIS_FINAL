@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:attr/colorBackground">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/Theme.Ensenando">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/streaming_red"
+            android:elevation="0dp"
+            app:title="Detalle de Logro"
+            app:titleTextColor="@color/white" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:gravity="center_horizontal">
+
+            <!-- Icono Grande -->
+            <ImageView
+                android:id="@+id/ivLogroIconGrande"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginBottom="24dp"
+                android:contentDescription="@string/logro_icon"
+                android:src="@android:drawable/star_big_on"
+                app:tint="@color/uleam_secondary" />
+
+            <!-- Título -->
+            <TextView
+                android:id="@+id/tvLogroTitulo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Título del Logro"
+                android:textAppearance="@style/TextAppearance.Headline1"
+                android:textColor="?attr/colorOnSurface"
+                android:textAlignment="center"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Categoría -->
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipCategoria"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Categoría"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone" />
+
+            <!-- Descripción -->
+            <TextView
+                android:id="@+id/tvLogroDescripcion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Descripción del logro"
+                android:textAppearance="@style/TextAppearance.Body1"
+                android:textColor="?attr/colorOnSurface"
+                android:textAlignment="center"
+                android:layout_marginBottom="24dp" />
+
+            <!-- Fecha Obtenido -->
+            <TextView
+                android:id="@+id/tvFechaObtenido"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Obtenido: dd/MM/yyyy"
+                android:textAppearance="@style/TextAppearance.Body2"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:layout_marginBottom="24dp" />
+
+            <!-- Botón Compartir -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCompartir"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Compartir"
+                app:icon="@android:drawable/ic_menu_share" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

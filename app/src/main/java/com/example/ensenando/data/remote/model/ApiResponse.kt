@@ -153,3 +153,28 @@ data class EstudianteInfo(
     val correo: String
 )
 
+// Respuesta de reportes
+data class ReporteResponse(
+    val success: Boolean? = null,
+    val message: String? = null,
+    val data: ReporteData? = null
+)
+
+data class ReporteData(
+    val usuario: UsuarioReporte? = null,
+    val progresos: List<ProgresoReporte>? = null
+)
+
+data class UsuarioReporte(
+    val nombre: String,
+    val correo: String,
+    val rol: String
+)
+
+data class ProgresoReporte(
+    val id_gesto: Int,
+    val nombre: String,
+    val porcentaje: Int,
+    val estado: String
+)
+

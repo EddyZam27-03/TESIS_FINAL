@@ -69,46 +69,22 @@ object VideoLoader {
         // Generar variantes del nombre
         val variantes = generateNameVariants(gestoNombre)
         
-        // Buscar en estructura conocida: INFO/GESTOS/CATEGORIA/SUBCATEGORIA/nombre.mp4
-        val categorias = listOf("ACADEMICO", "BASICO", "SOCIAL")
-        val subcategorias = listOf(
-            "ABECEDARIO", "Frases esenciales", "MESES", "Necesidades basicas", "Numero",
-            "Acciones academicas", "Asignaturas", "Conceptos academicos", "Material escolar",
-            "Actividades cotidianas", "Colores", "Comunicacion basica", 
-            "Emociones y sentimientos", "Familia y relaciones",
-            "Lugares y direcciones", "Saludos y despedidas", "Tiempo"
-        )
+        // ✅ OPTIMIZADO: Buscar en estructura real: INFO/GESTOS/CATEGORIA/SUBCATEGORIA/nombre.mp4
+        val categorias = listOf("BASICO", "SOCIAL", "ACADEMICO") // Orden optimizado según estructura real
         
-        // 1. Buscar en subcategorías conocidas
+        // ✅ FIX: Primero buscar recursivamente en cada categoría (más eficiente)
         for (categoria in categorias) {
-            for (subcategoria in subcategorias) {
-                for (variante in variantes) {
-                    for (formato in formatos) {
-                        val path = "INFO/GESTOS/$categoria/$subcategoria/$variante.$formato"
-                        if (assetExists(assetManager, path)) {
-                            Log.d(TAG, "Video encontrado: $path")
-                            return path
-                        }
-                    }
-                }
+            val categoriaPath = "INFO/GESTOS/$categoria"
+            val videoEncontrado = findVideoRecursive(assetManager, categoriaPath, variantes, formatos)
+            if (videoEncontrado != null) {
+                Log.d(TAG, "✅ Video encontrado en $categoria: $videoEncontrado")
+                return videoEncontrado
             }
         }
         
-        // 2. Buscar directamente en categorías
-        for (categoria in categorias) {
-            for (variante in variantes) {
-                for (formato in formatos) {
-                    val path = "INFO/GESTOS/$categoria/$variante.$formato"
-                    if (assetExists(assetManager, path)) {
-                        Log.d(TAG, "Video encontrado: $path")
-                        return path
-                    }
-                }
-            }
-        }
-        
-        // 3. Búsqueda recursiva como último recurso
-        return findVideoRecursive(assetManager, "INFO/GESTOS", variantes, formatos)
+        // Si no se encuentra en ninguna categoría, retornar null
+        Log.w(TAG, "❌ Video no encontrado después de buscar en todas las categorías: $gestoNombre")
+        return null
     }
     
     /**

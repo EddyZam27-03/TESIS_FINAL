@@ -16,9 +16,9 @@ import com.example.ensenando.databinding.ItemSolicitudBinding
 class SolicitudAdapter(
     private val rol: String,
     private var nombresUsuarios: Map<Int, String> = emptyMap(),
+    private var correosUsuarios: Map<Int, String> = emptyMap(),
     private val onAceptar: ((Int, Int) -> Unit)? = null,
-    private val onRechazar: ((Int, Int) -> Unit)? = null,
-    private val onEliminar: ((Int, Int) -> Unit)? = null
+    private val onRechazar: ((Int, Int) -> Unit)? = null
 ) : ListAdapter<DocenteEstudianteEntity, SolicitudAdapter.SolicitudViewHolder>(SolicitudDiffCallback()) {
     
     /**
@@ -29,9 +29,17 @@ class SolicitudAdapter(
         notifyDataSetChanged()
     }
     
+    /**
+     * ✅ NUEVO: Actualiza el mapa de correos de usuarios
+     */
+    fun updateCorreosUsuarios(correos: Map<Int, String>) {
+        correosUsuarios = correos
+        notifyDataSetChanged()
+    }
+    
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SolicitudViewHolder {
         val binding = ItemSolicitudBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return SolicitudViewHolder(binding, rol, nombresUsuarios, onAceptar, onRechazar, onEliminar)
+        return SolicitudViewHolder(binding, rol, nombresUsuarios, correosUsuarios, onAceptar, onRechazar)
     }
     
     override fun onBindViewHolder(holder: SolicitudViewHolder, position: Int) {
@@ -42,9 +50,9 @@ class SolicitudAdapter(
         private val binding: ItemSolicitudBinding,
         private val rol: String,
         private val nombresUsuarios: Map<Int, String>,
+        private val correosUsuarios: Map<Int, String>,
         private val onAceptar: ((Int, Int) -> Unit)?,
-        private val onRechazar: ((Int, Int) -> Unit)?,
-        private val onEliminar: ((Int, Int) -> Unit)?
+        private val onRechazar: ((Int, Int) -> Unit)?
     ) : RecyclerView.ViewHolder(binding.root) {
         
         fun bind(solicitud: DocenteEstudianteEntity) {
@@ -55,17 +63,42 @@ class SolicitudAdapter(
                     val nombreDocente = nombresUsuarios[solicitud.idDocente] 
                         ?: "Docente ID: ${solicitud.idDocente}"
                     binding.tvDocenteNombre.text = nombreDocente
+                    
+                    // ✅ NUEVO: Mostrar correo
+                    val correoDocente = correosUsuarios[solicitud.idDocente]
+                    if (correoDocente != null) {
+                        binding.tvCorreo.text = correoDocente
+                        binding.tvCorreo.visibility = ViewGroup.VISIBLE
+                    } else {
+                        binding.tvCorreo.visibility = ViewGroup.GONE
+                    }
                 }
                 "docente" -> {
                     // Para docentes: mostrar nombre del estudiante
                     val nombreEstudiante = nombresUsuarios[solicitud.idEstudiante] 
                         ?: "Estudiante ID: ${solicitud.idEstudiante}"
                     binding.tvDocenteNombre.text = nombreEstudiante
+                    
+                    // ✅ NUEVO: Mostrar correo
+                    val correoEstudiante = correosUsuarios[solicitud.idEstudiante]
+                    if (correoEstudiante != null) {
+                        binding.tvCorreo.text = correoEstudiante
+                        binding.tvCorreo.visibility = ViewGroup.VISIBLE
+                    } else {
+                        binding.tvCorreo.visibility = ViewGroup.GONE
+                    }
                 }
                 else -> {
                     binding.tvDocenteNombre.text = "Relación"
+                    binding.tvCorreo.visibility = ViewGroup.GONE
                 }
             }
+            
+            // ✅ NUEVO: Mostrar fecha de solicitud
+            val fechaSolicitud = java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault())
+                .format(java.util.Date(solicitud.lastUpdated))
+            binding.tvFechaSolicitud.text = "Solicitud: $fechaSolicitud"
+            binding.tvFechaSolicitud.visibility = ViewGroup.VISIBLE
             
             // Mostrar estado con color
             when (solicitud.estado.lowercase()) {
@@ -89,38 +122,21 @@ class SolicitudAdapter(
                 }
             }
             
-            // Mostrar botones según el rol y estado
-            when {
-                // Docentes: botones Aceptar/Rechazar solo para solicitudes pendientes
-                rol == "docente" && solicitud.estado.lowercase() == "pendiente" -> {
-                    binding.btnAceptar.visibility = android.view.View.VISIBLE
-                    binding.btnRechazar.visibility = android.view.View.VISIBLE
-                    binding.btnEliminar.visibility = android.view.View.GONE
-                    
-                    binding.btnAceptar.setOnClickListener {
-                        onAceptar?.invoke(solicitud.idDocente, solicitud.idEstudiante)
-                    }
-                    
-                    binding.btnRechazar.setOnClickListener {
-                        onRechazar?.invoke(solicitud.idDocente, solicitud.idEstudiante)
-                    }
+            // Mostrar botones solo para docentes y solo si está pendiente
+            if (rol == "docente" && solicitud.estado.lowercase() == "pendiente") {
+                binding.btnAceptar.visibility = android.view.View.VISIBLE
+                binding.btnRechazar.visibility = android.view.View.VISIBLE
+                
+                binding.btnAceptar.setOnClickListener {
+                    onAceptar?.invoke(solicitud.idDocente, solicitud.idEstudiante)
                 }
-                // Mostrar botón Eliminar para relaciones aceptadas (tanto estudiantes como docentes)
-                solicitud.estado.lowercase() == "aceptado" -> {
-                    binding.btnAceptar.visibility = android.view.View.GONE
-                    binding.btnRechazar.visibility = android.view.View.GONE
-                    binding.btnEliminar.visibility = android.view.View.VISIBLE
-                    
-                    binding.btnEliminar.setOnClickListener {
-                        onEliminar?.invoke(solicitud.idDocente, solicitud.idEstudiante)
-                    }
+                
+                binding.btnRechazar.setOnClickListener {
+                    onRechazar?.invoke(solicitud.idDocente, solicitud.idEstudiante)
                 }
-                // Ocultar todos los botones para otros estados
-                else -> {
-                    binding.btnAceptar.visibility = android.view.View.GONE
-                    binding.btnRechazar.visibility = android.view.View.GONE
-                    binding.btnEliminar.visibility = android.view.View.GONE
-                }
+            } else {
+                binding.btnAceptar.visibility = android.view.View.GONE
+                binding.btnRechazar.visibility = android.view.View.GONE
             }
         }
     }

@@ -30,6 +30,28 @@
                 android:textColor="?attr/colorOnSurface"
                 android:textStyle="bold" />
 
+            <!-- ✅ NUEVO: Correo -->
+            <TextView
+                android:id="@+id/tvCorreo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="correo@example.com"
+                android:textAppearance="@style/TextAppearance.Body2"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:visibility="gone" />
+
+            <!-- ✅ NUEVO: Fecha de solicitud -->
+            <TextView
+                android:id="@+id/tvFechaSolicitud"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Fecha"
+                android:textAppearance="@style/TextAppearance.Body2"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:visibility="gone" />
+
             <TextView
                 android:id="@+id/tvEstado"
                 android:layout_width="wrap_content"
@@ -60,15 +82,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Rechazar"
-                android:textColor="@color/accent_error"
-                android:visibility="gone" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnEliminar"
-                style="@style/Widget.Ensenando.Button.Text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Eliminar"
                 android:textColor="@color/accent_error"
                 android:visibility="gone" />
         </LinearLayout>

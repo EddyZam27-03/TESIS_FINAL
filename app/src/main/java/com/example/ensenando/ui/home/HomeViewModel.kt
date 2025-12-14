@@ -12,6 +12,7 @@ import com.example.ensenando.data.repository.ProgresoRepository
 import com.example.ensenando.data.remote.RetrofitClient
 import com.example.ensenando.util.SecurityUtils
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
@@ -30,74 +31,90 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     // ✅ CAMBIADO: Ahora son 3 módulos principales (Básico, Social, Académico)
     private val _modulosPrincipales = MutableLiveData<List<ModuloPrincipal>>()
     val modulosPrincipales: LiveData<List<ModuloPrincipal>> = _modulosPrincipales
+    
+    // ✅ NUEVO: Mapa de progreso por gesto
+    private val _progresoMap = MutableLiveData<Map<Int, GestoAdapter.GestoProgreso>>()
+    val progresoMap: LiveData<Map<Int, GestoAdapter.GestoProgreso>> = _progresoMap
+    
+    // ✅ NUEVO: Logros recientes
+    private val _logrosRecientes = MutableLiveData<List<com.example.ensenando.data.remote.model.LogrosResponse>>()
+    val logrosRecientes: LiveData<List<com.example.ensenando.data.remote.model.LogrosResponse>> = _logrosRecientes
+    
+    // ✅ NUEVO: Notificaciones pendientes
+    private val _notificacionesPendientes = MutableLiveData<Int>()
+    val notificacionesPendientes: LiveData<Int> = _notificacionesPendientes
+    
+    // ✅ NUEVO: Estado de conexión
+    private val _isOnline = MutableLiveData<Boolean>()
+    val isOnline: LiveData<Boolean> = _isOnline
 
     init {
-        loadHomeData()
-    }
-
-    /** ============================================
-     *   ✅ MEJORADO: CARGA LOCAL PRIMERO, SYNC EN BACKGROUND
-     *  ============================================ */
-    private fun loadHomeData() {
+        // ✅ OPTIMIZADO: Cargar solo lo esencial al inicio
+        loadModulosNombres()
+        loadProgresoLocal()
+        // Cargar el resto en background sin bloquear
         viewModelScope.launch {
-            val idUsuario = SecurityUtils.getUserId(getApplication())
-            if (idUsuario == -1) return@launch
-
-            // ✅ PASO 1: Cargar datos locales INMEDIATAMENTE (sin esperar red)
-            loadGestosLocal()
-            loadProgresoLocal()
-
-            // ✅ PASO 2: Intentar sincronizar en background (si hay red)
+        loadLogrosRecientes()
+        loadNotificacionesPendientes()
+        updateConnectionStatus()
+            // Sincronizar en background sin bloquear UI
             try {
                 if (com.example.ensenando.util.NetworkUtils.isNetworkAvailable(getApplication())) {
-                    // Sincronizar gestos en background
                     gestoRepository.syncGestos()
-
-                    // Intentar obtener datos actualizados del servidor
-                    val response = apiService.getHomeData(usuarioId = idUsuario)
-                    val homeData = response.body()
-
-                    if (response.isSuccessful && homeData?.success == true) {
-                        val stats = homeData.estadisticas
-
-                        // Manejar null de forma segura para promedio_progreso
-                        val promedioProgreso = try {
-                            when (val prom = stats?.promedio_progreso) {
-                                null -> 0f
-                                is Number -> prom.toFloat()
-                                else -> 0f
-                            }
-                        } catch (e: Exception) {
-                            0f
-                        }
-
-                        // Actualizar con datos del servidor
-                        _progreso.value = ProgresoResumen(
-                            totalGestos = gestos.value?.size ?: 0,
-                            gestosAprendidos = stats?.gestos_aprendidos ?: 0,
-                            promedioProgreso = promedioProgreso,
-                            ultimaActividad = homeData.actividades?.firstOrNull()?.id_gesto
-                        )
-
-                        // Los gestos ya se actualizaron con syncGestos(), solo reorganizar
-                        gestos.value?.let { organizarModulosPrincipales(it) }
-                    }
                 }
             } catch (e: Exception) {
-                // Si falla la sincronización, los datos locales ya están cargados
-                android.util.Log.w("HomeViewModel", "Error al sincronizar (continuando con datos locales): ${e.message}")
+                android.util.Log.w("HomeViewModel", "Error al sincronizar en background", e)
             }
         }
     }
 
-    /** =========================
-     *     CARGA LOCAL (OFFLINE)
-     *  ========================= */
-    private fun loadGestosLocal() {
+    /** ============================================
+     *   ✅ OPTIMIZADO: CARGAR SOLO NOMBRES DE MÓDULOS
+     *   Sin procesar todos los gestos
+     *  ============================================ */
+    private fun loadModulosNombres() {
         viewModelScope.launch {
-            gestoRepository.getAllGestos().collect { gestosList ->
-                _gestos.value = gestosList
-                organizarModulosPrincipales(gestosList)
+            try {
+                // Cargar solo una vez para obtener los módulos disponibles
+                val gestos = gestoRepository.getAllGestos().first()
+                val modulosSet = mutableSetOf<String>()
+                
+                gestos.forEach { gesto ->
+                    val categoria = gesto.categoria ?: return@forEach
+                    val partes = categoria.split(" - ")
+                    if (partes.isNotEmpty()) {
+                        val modulo = partes[0].uppercase()
+                        when (modulo) {
+                            "BASICO" -> modulosSet.add("Básico")
+                            "SOCIAL" -> modulosSet.add("Social")
+                            "ACADEMICO" -> modulosSet.add("Académico")
+                        }
+                    }
+                }
+                
+                // Crear lista simple de módulos (solo nombres, sin gestos)
+                val modulosList = modulosSet.map { nombre ->
+                    ModuloPrincipal(
+                        nombre = nombre,
+                        nombreCategoria = when (nombre) {
+                            "Básico" -> "BASICO"
+                            "Social" -> "SOCIAL"
+                            "Académico" -> "ACADEMICO"
+                            else -> ""
+                        },
+                        submodulos = emptyList() // No cargar submódulos aquí
+                    )
+                }
+                
+                _modulosPrincipales.value = modulosList
+            } catch (e: Exception) {
+                android.util.Log.e("HomeViewModel", "Error al cargar módulos", e)
+                // Fallback: mostrar módulos por defecto
+                _modulosPrincipales.value = listOf(
+                    ModuloPrincipal("Básico", "BASICO", emptyList()),
+                    ModuloPrincipal("Social", "SOCIAL", emptyList()),
+                    ModuloPrincipal("Académico", "ACADEMICO", emptyList())
+                )
             }
         }
     }
@@ -124,6 +141,15 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                     promedioProgreso = promedio,
                     ultimaActividad = ultimaActividad
                 )
+                
+                // ✅ FIX: Actualizar progresoMap para que los gestos se muestren con progreso
+                val progresoMap = progresos.associate { progreso ->
+                    progreso.idGesto to GestoAdapter.GestoProgreso(
+                        porcentaje = progreso.porcentaje,
+                        estado = progreso.estado
+                    )
+                }
+                _progresoMap.value = progresoMap
             }
         }
     }
@@ -220,4 +246,51 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         val promedioProgreso: Float,
         val ultimaActividad: Int?
     )
+    
+    private fun loadLogrosRecientes() {
+        viewModelScope.launch {
+            try {
+                val idUsuario = SecurityUtils.getUserId(getApplication())
+                if (idUsuario != -1) {
+                    val logroRepository = com.example.ensenando.data.repository.LogroRepository(
+                        getApplication(),
+                        database,
+                        apiService
+                    )
+                    val logros = logroRepository.getLogrosRecientes(idUsuario, 3)
+                    _logrosRecientes.value = logros
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("HomeViewModel", "Error al cargar logros recientes", e)
+                _logrosRecientes.value = emptyList()
+            }
+        }
+    }
+    
+    private fun loadNotificacionesPendientes() {
+        viewModelScope.launch {
+            try {
+                val idUsuario = SecurityUtils.getUserId(getApplication())
+                if (idUsuario != -1) {
+                    val docenteEstudianteRepository = com.example.ensenando.data.repository.DocenteEstudianteRepository(
+                        getApplication(),
+                        database,
+                        apiService
+                    )
+                    docenteEstudianteRepository.getSolicitudesPendientes(idUsuario).collect { solicitudes ->
+                        _notificacionesPendientes.value = solicitudes.size
+                    }
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("HomeViewModel", "Error al cargar notificaciones pendientes", e)
+                _notificacionesPendientes.value = 0
+            }
+        }
+    }
+    
+    private fun updateConnectionStatus() {
+        viewModelScope.launch {
+            _isOnline.value = com.example.ensenando.util.NetworkUtils.isNetworkAvailable(getApplication())
+        }
+    }
 }

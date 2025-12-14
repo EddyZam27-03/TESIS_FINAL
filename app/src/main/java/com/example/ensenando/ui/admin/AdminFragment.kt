@@ -60,18 +60,6 @@ class AdminFragment : Fragment() {
                 if (idUsuario != null) {
                     viewModel.verProgreso(idUsuario)
                 }
-            },
-            onResetClick = { estudiante ->
-                // Resetear actividad del estudiante
-                val idUsuario = estudiante.id_usuario ?: estudiante.id
-                if (idUsuario != null) {
-                    lifecycleScope.launch {
-                        viewModel.mostrarDialogoReset(idUsuario)
-                    }
-                }
-            },
-            onVerReporte = { estudiante ->
-                estudiante.id_usuario?.let { viewModel.generarReporte(it) }
             }
         )
         binding.rvEstudiantes.layoutManager = LinearLayoutManager(requireContext())
@@ -161,6 +149,17 @@ class AdminFragment : Fragment() {
                 viewModel.buscarEstudiante(busqueda)
             } else {
                 viewModel.cargarTodosEstudiantes()
+            }
+            true
+        }
+        
+        // Buscar relación
+        binding.etBuscarRelacion.setOnEditorActionListener { _, _, _ ->
+            val busqueda = binding.etBuscarRelacion.text.toString()
+            if (busqueda.isNotEmpty()) {
+                viewModel.buscarRelacion(busqueda)
+            } else {
+                viewModel.cargarRelaciones()
             }
             true
         }

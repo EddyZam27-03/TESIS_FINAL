@@ -3,7 +3,7 @@
     <!-- ✅ MEDIUM FIX: Permitir HTTP solo para desarrollo local -->
     <!-- En producción, cambiar a false y usar HTTPS -->
     <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">192.168.0.8</domain>
+        <domain includeSubdomains="true">192.168.0.5</domain>
         <domain includeSubdomains="true">localhost</domain>
         <domain includeSubdomains="true">10.0.2.2</domain>
     </domain-config>

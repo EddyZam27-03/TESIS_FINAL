@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:text="Módulo"
             android:textAppearance="@style/TextAppearance.Headline2"
-            android:textColor="@color/streaming_red"
+            android:textColor="?attr/colorPrimary"
             android:textStyle="bold"
             android:paddingBottom="12dp"
             android:paddingStart="4dp" />

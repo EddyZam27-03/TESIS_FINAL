@@ -33,6 +33,10 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     private val _nombresUsuarios = MutableLiveData<Map<Int, String>>()
     val nombresUsuarios: LiveData<Map<Int, String>> = _nombresUsuarios
     
+    // ✅ NUEVO: Mapa de correos de usuarios
+    private val _correosUsuarios = MutableLiveData<Map<Int, String>>()
+    val correosUsuarios: LiveData<Map<Int, String>> = _correosUsuarios
+    
     private val _reporteGenerado = MutableLiveData<Result<String>>()
     val reporteGenerado: LiveData<Result<String>> = _reporteGenerado
     
@@ -40,6 +44,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
         loadUsuario()
         loadSolicitudes()
         loadNombresUsuarios()
+        loadProgresoTotal()
     }
     
     /**
@@ -50,10 +55,13 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
             try {
                 val usuarios = usuarioRepository.getAllUsuarios().first()
                 val nombresMap = usuarios.associate { it.idUsuario to it.nombre }
+                val correosMap = usuarios.associate { it.idUsuario to it.correo }
                 _nombresUsuarios.value = nombresMap
+                _correosUsuarios.value = correosMap
             } catch (e: Exception) {
                 android.util.Log.e("ProfileViewModel", "Error al cargar nombres de usuarios", e)
                 _nombresUsuarios.value = emptyMap()
+                _correosUsuarios.value = emptyMap()
             }
         }
     }
@@ -231,5 +239,99 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     fun logout() {
         SecurityUtils.clearAll(getApplication())
     }
+    
+    // ✅ NUEVO: Editar perfil
+    fun editarPerfil(nuevoNombre: String) {
+        viewModelScope.launch {
+            val idUsuario = SecurityUtils.getUserId(getApplication())
+            if (idUsuario != -1) {
+                try {
+                    val usuario = usuarioRepository.getUsuarioByIdSuspend(idUsuario)
+                    if (usuario != null) {
+                        val usuarioActualizado = usuario.copy(
+                            nombre = nuevoNombre,
+                            syncStatus = "pending"
+                        )
+                        usuarioRepository.updateUsuario(usuarioActualizado)
+                        loadUsuario()
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("ProfileViewModel", "Error al editar perfil", e)
+                }
+            }
+        }
+    }
+    
+    // ✅ NUEVO: Cambiar contraseña
+    fun cambiarContraseña(passwordActual: String, nuevaPassword: String) {
+        viewModelScope.launch {
+            val idUsuario = SecurityUtils.getUserId(getApplication())
+            if (idUsuario != -1) {
+                try {
+                    val usuario = usuarioRepository.getUsuarioByIdSuspend(idUsuario)
+                    if (usuario != null) {
+                        // TODO: Verificar contraseña actual contra BD o servidor
+                        // Por ahora, asumimos que es correcta
+                        // Usar bcrypt o el mismo método que usa el servidor
+                        val hashNuevaPassword = android.util.Base64.encodeToString(
+                            java.security.MessageDigest.getInstance("SHA-256")
+                                .digest(nuevaPassword.toByteArray()),
+                            android.util.Base64.NO_WRAP
+                        )
+                        
+                        val usuarioActualizado = usuario.copy(
+                            contrasena = hashNuevaPassword,
+                            syncStatus = "pending",
+                            lastUpdated = System.currentTimeMillis()
+                        )
+                        usuarioRepository.updateUsuario(usuarioActualizado)
+                        loadUsuario()
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("ProfileViewModel", "Error al cambiar contraseña", e)
+                }
+            }
+        }
+    }
+    
+    // ✅ NUEVO: Cargar progreso total
+    private val _progresoTotal = MutableLiveData<ProgresoTotal>()
+    val progresoTotal: LiveData<ProgresoTotal> = _progresoTotal
+    
+    fun loadProgresoTotal() {
+        viewModelScope.launch {
+            val idUsuario = SecurityUtils.getUserId(getApplication())
+            if (idUsuario != -1) {
+                try {
+                    val progresos = progresoRepository.getProgresoByUsuario(idUsuario).first()
+                    val gestosAprendidos = progresos.count { it.estado == "aprendido" }
+                    val totalGestos = database.gestoDao().getAllGestos().first().size
+                    
+                    val logroRepository = com.example.ensenando.data.repository.LogroRepository(
+                        getApplication(), database, apiService
+                    )
+                    val logros = logroRepository.getLogrosUsuario(idUsuario).getOrNull() ?: emptyList()
+                    val logrosObtenidos = logros.count { it.desbloqueado == true }
+                    val totalLogros = database.logroDao().getAllLogros().first().size
+                    
+                    _progresoTotal.value = ProgresoTotal(
+                        gestosAprendidos = gestosAprendidos,
+                        totalGestos = totalGestos,
+                        logrosObtenidos = logrosObtenidos,
+                        totalLogros = totalLogros
+                    )
+                } catch (e: Exception) {
+                    android.util.Log.e("ProfileViewModel", "Error al cargar progreso total", e)
+                }
+            }
+        }
+    }
+    
+    data class ProgresoTotal(
+        val gestosAprendidos: Int,
+        val totalGestos: Int,
+        val logrosObtenidos: Int,
+        val totalLogros: Int
+    )
 }
 

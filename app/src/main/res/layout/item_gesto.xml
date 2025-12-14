@@ -14,45 +14,99 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:padding="14dp">
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
-            <!-- ✅ NOMBRE DEL GESTO - Nivel 3 de la jerarquía -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <!-- Nombre del Gesto -->
+                <TextView
+                    android:id="@+id/tvGestoNombre"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Gesto"
+                    android:textAppearance="@style/TextAppearance.Body1"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textStyle="bold" />
+
+                <!-- Categoría -->
+                <TextView
+                    android:id="@+id/tvCategoria"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Categoría"
+                    android:textAppearance="@style/TextAppearance.Body2"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:visibility="gone" />
+
+                <!-- Dificultad y Estado -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipDificultad"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Fácil"
+                        android:visibility="gone" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipEstado"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="Pendiente"
+                        android:visibility="gone" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Porcentaje -->
             <TextView
-                android:id="@+id/tvGestoNombre"
+                android:id="@+id/tvPorcentaje"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Gesto"
-                android:textAppearance="@style/TextAppearance.Body1"
-                android:textColor="?attr/colorOnSurface"
+                android:layout_marginStart="8dp"
+                android:text="0%"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="16sp"
                 android:textStyle="bold" />
-
-            <ProgressBar
-                android:id="@+id/progressGesto"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:max="100"
-                android:progress="0" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/tvPorcentaje"
-            android:layout_width="wrap_content"
+        <!-- ProgressBar -->
+        <ProgressBar
+            android:id="@+id/progressGesto"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="0%"
-            android:textColor="@color/streaming_red"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:layout_marginTop="8dp"
+            android:max="100"
+            android:progress="0" />
 
+        <!-- Botón Practicar -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPracticar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/practice_gesture"
+            android:visibility="gone"
+            app:icon="@android:drawable/ic_menu_camera" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
 

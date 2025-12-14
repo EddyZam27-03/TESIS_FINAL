@@ -10,11 +10,13 @@ import com.example.ensenando.databinding.ItemLogroBinding
 import java.text.SimpleDateFormat
 import java.util.*
 
-class LogrosAdapter : ListAdapter<LogrosResponse, LogrosAdapter.LogroViewHolder>(LogroDiffCallback()) {
+class LogrosAdapter(
+    private val onVerDetalleClick: ((Int) -> Unit)? = null
+) : ListAdapter<LogrosResponse, LogrosAdapter.LogroViewHolder>(LogroDiffCallback()) {
     
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LogroViewHolder {
         val binding = ItemLogroBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return LogroViewHolder(binding)
+        return LogroViewHolder(binding, onVerDetalleClick)
     }
     
     override fun onBindViewHolder(holder: LogroViewHolder, position: Int) {
@@ -22,7 +24,8 @@ class LogrosAdapter : ListAdapter<LogrosResponse, LogrosAdapter.LogroViewHolder>
     }
     
     class LogroViewHolder(
-        private val binding: ItemLogroBinding
+        private val binding: ItemLogroBinding,
+        private val onVerDetalleClick: ((Int) -> Unit)?
     ) : RecyclerView.ViewHolder(binding.root) {
         
         fun bind(logro: LogrosResponse) {
@@ -67,6 +70,19 @@ class LogrosAdapter : ListAdapter<LogrosResponse, LogrosAdapter.LogroViewHolder>
             val porcentaje = logro.porcentajeAvance ?: 0
             binding.progressLogro.progress = porcentaje
             binding.tvPorcentajeLogro.text = "$porcentaje%"
+            
+            // ✅ NUEVO: Botón Ver Detalle
+            if (onVerDetalleClick != null && desbloqueado) {
+                binding.btnVerDetalle.visibility = ViewGroup.VISIBLE
+                binding.btnVerDetalle.setOnClickListener {
+                    val idLogro = logro.id_logro ?: logro.id
+                    if (idLogro != null) {
+                        onVerDetalleClick?.invoke(idLogro)
+                    }
+                }
+            } else {
+                binding.btnVerDetalle.visibility = ViewGroup.GONE
+            }
         }
     }
     

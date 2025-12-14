@@ -61,12 +61,6 @@ class ProfileFragment : Fragment() {
             if (solicitudes.isNotEmpty()) {
                 binding.tvSolicitudesTitle.visibility = View.VISIBLE
                 binding.rvSolicitudes.visibility = View.VISIBLE
-                // Actualizar título según el rol
-                binding.tvSolicitudesTitle.text = when (rol) {
-                    "estudiante" -> "Mis Solicitudes a Docentes"
-                    "docente" -> "Solicitudes de Estudiantes"
-                    else -> "Solicitudes"
-                }
             } else {
                 binding.tvSolicitudesTitle.visibility = View.GONE
                 binding.rvSolicitudes.visibility = View.GONE
@@ -86,6 +80,12 @@ class ProfileFragment : Fragment() {
                     android.widget.Toast.LENGTH_SHORT
                 ).show()
             }
+        }
+        
+        // ✅ NUEVO: Observar progreso total
+        viewModel.progresoTotal.observe(viewLifecycleOwner) { progreso ->
+            binding.tvProgresoGestos.text = "${progreso.gestosAprendidos}/${progreso.totalGestos}"
+            binding.tvProgresoLogros.text = "${progreso.logrosObtenidos}/${progreso.totalLogros}"
         }
     }
     
@@ -113,6 +113,7 @@ class ProfileFragment : Fragment() {
             }
         }
         
+        
         // Botón Cerrar Sesión
         binding.btnCerrarSesion.setOnClickListener {
             viewModel.logout()
@@ -133,6 +134,7 @@ class ProfileFragment : Fragment() {
         val adapter = SolicitudAdapter(
             rol = rol,
             nombresUsuarios = emptyMap(), // Se actualizará cuando se carguen los nombres
+            correosUsuarios = emptyMap(), // ✅ NUEVO: Se actualizará cuando se carguen los correos
             onAceptar = { idDocente, idEstudiante ->
                 viewModel.aceptarSolicitud(idDocente, idEstudiante)
                 android.widget.Toast.makeText(
@@ -148,14 +150,6 @@ class ProfileFragment : Fragment() {
                     "Solicitud rechazada",
                     android.widget.Toast.LENGTH_SHORT
                 ).show()
-            },
-            onEliminar = { idDocente, idEstudiante ->
-                viewModel.eliminarRelacion(idDocente, idEstudiante)
-                android.widget.Toast.makeText(
-                    requireContext(),
-                    "Relación eliminada",
-                    android.widget.Toast.LENGTH_SHORT
-                ).show()
             }
         )
         binding.rvSolicitudes.layoutManager = LinearLayoutManager(requireContext())
@@ -168,6 +162,11 @@ class ProfileFragment : Fragment() {
         // Actualizar nombres cuando se carguen
         viewModel.nombresUsuarios.observe(viewLifecycleOwner) { nombres ->
             adapter.updateNombresUsuarios(nombres)
+        }
+        
+        // ✅ NUEVO: Actualizar correos cuando se carguen
+        viewModel.correosUsuarios.observe(viewLifecycleOwner) { correos ->
+            adapter.updateCorreosUsuarios(correos)
         }
     }
     

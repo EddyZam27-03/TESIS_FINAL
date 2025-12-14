@@ -70,7 +70,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:text="0%"
-                    android:textColor="@color/streaming_red"
+                    android:textColor="?attr/colorPrimary"
                     android:textSize="12sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -95,8 +95,16 @@
             android:src="@android:drawable/ic_menu_revert"
             android:visibility="gone"
             app:tint="@color/accent_success" />
-
     </LinearLayout>
+
+    <!-- ✅ NUEVO: Botón Ver Detalle -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnVerDetalle"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/ver_detalle"
+        android:visibility="gone" />
 </com.google.android.material.card.MaterialCardView>
 
 

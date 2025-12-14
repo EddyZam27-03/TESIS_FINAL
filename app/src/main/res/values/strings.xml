@@ -35,4 +35,26 @@
     <string name="delete_relation">Eliminar Relación</string>
     <string name="student_management">Gestión de Estudiantes</string>
     <string name="teacher_student_relations">Relaciones Docente-Estudiante</string>
+    <string name="configuracion">Configuración</string>
+    <string name="tema">Tema</string>
+    <string name="descripcion_tema">Elige entre modo claro u oscuro</string>
+    <string name="modo_oscuro">Modo Oscuro</string>
+    <string name="sincronizacion">Sincronización</string>
+    <string name="sincronizado">Sincronizado</string>
+    <string name="sincronizar_ahora">Sincronizar Ahora</string>
+    <string name="conexion">Conexión</string>
+    <string name="online">Online</string>
+    <string name="offline">Offline</string>
+    <string name="notificaciones">Notificaciones</string>
+    <string name="notificaciones_logros">Notificaciones de Logros</string>
+    <string name="notificaciones_solicitudes">Notificaciones de Solicitudes</string>
+    <string name="recordatorios_diarios">Recordatorios Diarios</string>
+    <string name="pendiente_sincronizacion">Pendiente: %1$d elementos</string>
+    <string name="error_sincronizacion">Error de sincronización</string>
+    <string name="ultima_sincronizacion">Última sincronización: %1$s</string>
+    <string name="nunca">Nunca</string>
+    <string name="ver_detalle">Ver Detalle</string>
+    <string name="editar_perfil">Editar Perfil</string>
+    <string name="cambiar_contraseña">Cambiar Contraseña</string>
+    <string name="cerrar_sesion">Cerrar Sesión</string>
 </resources>

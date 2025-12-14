@@ -10,12 +10,18 @@ interface ApiService {
     @POST("login.php")
     suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
     
-    @POST("registro.php")
+    @POST("register.php")
     suspend fun register(@Body request: RegisterRequest): Response<RegisterResponse>
     
+    @POST("registro.php")
+    suspend fun registro(@Body request: RegisterRequest): Response<RegisterResponse>
+    
     // ========== GESTOS ==========
-    @GET("listar_gestos.php")
+    @GET("gestos.php")
     suspend fun getGestos(): Response<GestosResponse>
+    
+    @GET("listar_gestos.php")
+    suspend fun listarGestos(): Response<GestosResponse>
     
     @GET("obtener_gestos_usuario.php")
     suspend fun getGestosUsuario(
@@ -45,6 +51,10 @@ interface ApiService {
     
     @POST("sync_progreso.php")
     suspend fun syncProgreso(@Body request: SyncProgresoRequest): Response<ApiResponse<Unit>>
+    
+    // ========== SINCRONIZACIÓN ==========
+    @POST("sync.php")
+    suspend fun sync(@Body request: SyncRequest): Response<SyncResponse>
     
     // ========== SOLICITUDES DOCENTE-ESTUDIANTE ==========
     @POST("enviar_solicitud_docente.php")
@@ -115,7 +125,16 @@ interface ApiService {
     @GET("listar_estudiantes_docente.php")
     suspend fun listarEstudiantesDocente(
         @Query("id_docente") idDocente: Int? = null,
-        @Query("usuario_id") usuarioId: Int? = null
+        @Query("docente_id") docenteId: Int? = null,
+        @Query("usuario_id") usuarioId: Int? = null,
+        @Query("id_usuario") idUsuario: Int? = null
     ): Response<List<UsuarioResponse>>
+    
+    // ========== REPORTES ==========
+    @GET("reporte.php")
+    suspend fun generarReporte(
+        @Query("id_usuario") idUsuario: Int? = null,
+        @Query("formato") formato: String = "pdf"
+    ): Response<ReporteResponse>
 }
 

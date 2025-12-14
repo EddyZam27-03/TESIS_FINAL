@@ -50,6 +50,29 @@ class ProgresoRepository(
                 logrosDesbloqueados.onSuccess { logros ->
                     if (logros.isNotEmpty()) {
                         android.util.Log.d("ProgresoRepository", "Logros desbloqueados: ${logros.size}")
+                        
+                        // ✅ NUEVO: Mostrar notificación para cada logro desbloqueado
+                        logros.forEach { logro ->
+                            logro.titulo?.let { titulo ->
+                                logro.descripcion?.let { descripcion ->
+                                    com.example.ensenando.util.NotificationManager.mostrarToastLogro(
+                                        context,
+                                        titulo
+                                    )
+                                    // Opcional: Mostrar notificación push si está habilitado
+                                    val configRepository = com.example.ensenando.data.repository.ConfigRepository(database)
+                                    kotlinx.coroutines.runBlocking {
+                                        if (configRepository.getNotificacionesLogros()) {
+                                            com.example.ensenando.util.NotificationManager.mostrarNotificacionLogro(
+                                                context,
+                                                titulo,
+                                                descripcion
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             } catch (e: Exception) {
@@ -94,7 +117,50 @@ class ProgresoRepository(
             // Obtener cambios pendientes
             val pendientes = usuarioGestoDao.getPendingProgreso()
             
-            // Sincronizar cada progreso pendiente
+            // ✅ MEJORADO: Sincronizar usando sync.php (más eficiente)
+            if (pendientes.isNotEmpty()) {
+                val syncRequest = com.example.ensenando.data.remote.model.SyncRequest(
+                    usuario_gestos = pendientes.map { progreso ->
+                        com.example.ensenando.data.remote.model.UsuarioGestoSyncItem(
+                            id_usuario = progreso.idUsuario,
+                            id_gesto = progreso.idGesto,
+                            porcentaje = progreso.porcentaje,
+                            estado = progreso.estado
+                            // last_updated no se envía (solo para Room local)
+                        )
+                    },
+                    docente_estudiante = null
+                )
+                
+                val response = apiService.sync(syncRequest)
+                if (response.isSuccessful) {
+                    val syncResponse = response.body()
+                    // ✅ NUEVO: Resolver conflictos
+                    syncResponse?.usuario_gestos?.forEach { remoteProgreso ->
+                        val localProgreso = pendientes.find { 
+                            it.idUsuario == remoteProgreso.id_usuario && 
+                            it.idGesto == remoteProgreso.id_gesto 
+                        }
+                        
+                        if (localProgreso != null) {
+                            // ✅ Resolver conflicto: mantener porcentaje más alto
+                            val porcentajeFinal = maxOf(localProgreso.porcentaje, remoteProgreso.porcentaje)
+                            val estadoFinal = if (porcentajeFinal >= 80) "aprendido" else localProgreso.estado
+                            
+                            usuarioGestoDao.updateProgreso(
+                                localProgreso.idUsuario,
+                                localProgreso.idGesto,
+                                porcentajeFinal,
+                                estadoFinal,
+                                System.currentTimeMillis()
+                            )
+                            usuarioGestoDao.updateSyncStatus(localProgreso.idUsuario, localProgreso.idGesto, "synced")
+                        }
+                    }
+                }
+            }
+            
+            // Método anterior (mantener por compatibilidad)
             pendientes.forEach { progreso ->
                 try {
                     val syncRequest = com.example.ensenando.data.remote.model.SyncProgresoRequest(

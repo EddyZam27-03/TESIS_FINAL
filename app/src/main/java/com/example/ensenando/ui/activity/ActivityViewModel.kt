@@ -9,6 +9,7 @@ import com.example.ensenando.data.local.AppDatabase
 import com.example.ensenando.data.local.entity.GestoEntity
 import com.example.ensenando.data.local.entity.UsuarioGestoEntity
 import com.example.ensenando.data.repository.GestoRepository
+import com.example.ensenando.data.repository.HistorialIntentoRepository
 import com.example.ensenando.data.repository.ProgresoRepository
 import com.example.ensenando.data.remote.RetrofitClient
 import com.example.ensenando.ml.GestureRecognitionManager
@@ -21,6 +22,7 @@ class ActivityViewModel(application: Application) : AndroidViewModel(application
     private val apiService = RetrofitClient.apiService
     private val gestoRepository = GestoRepository(application, database, apiService)
     private val progresoRepository = ProgresoRepository(application, database, apiService)
+    private val historialRepository = HistorialIntentoRepository(application, database)
     
     private val gestureRecognitionManager = GestureRecognitionManager(application)
     
@@ -35,6 +37,9 @@ class ActivityViewModel(application: Application) : AndroidViewModel(application
     
     private val _prediction = MutableLiveData<Pair<Int, Float>?>()
     val prediction: LiveData<Pair<Int, Float>?> = _prediction
+    
+    private val _historialIntentos = MutableLiveData<List<com.example.ensenando.data.local.entity.HistorialIntentoEntity>>()
+    val historialIntentos: LiveData<List<com.example.ensenando.data.local.entity.HistorialIntentoEntity>> = _historialIntentos
     
     init {
         viewModelScope.launch {
@@ -70,6 +75,9 @@ class ActivityViewModel(application: Application) : AndroidViewModel(application
                 val progreso = progresoRepository.getProgreso(idUsuario, idGesto)
                 _progresoActual.value = progreso
                 _progress.value = progreso?.porcentaje ?: 0
+                
+                // ✅ NUEVO: Cargar historial de intentos
+                cargarHistorialIntentos(idUsuario, idGesto)
                 }
             } catch (e: Exception) {
                 android.util.Log.e("ActivityViewModel", "Error al cargar gesto", e)
@@ -107,6 +115,18 @@ class ActivityViewModel(application: Application) : AndroidViewModel(application
     fun resetProgress() {
         gestureRecognitionManager.resetProgress()
         _progress.value = 0
+    }
+    
+    private fun cargarHistorialIntentos(idUsuario: Int, idGesto: Int) {
+        viewModelScope.launch {
+            try {
+                val intentos = historialRepository.getUltimosIntentos(idUsuario, idGesto, 10)
+                _historialIntentos.value = intentos
+            } catch (e: Exception) {
+                android.util.Log.e("ActivityViewModel", "Error al cargar historial de intentos", e)
+                _historialIntentos.value = emptyList()
+            }
+        }
     }
     
     override fun onCleared() {

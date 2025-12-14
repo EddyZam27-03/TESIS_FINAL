@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:text="Submódulo"
             android:textAppearance="@style/TextAppearance.Headline3"
-            android:textColor="@color/streaming_red"
+            android:textColor="?attr/colorPrimary"
             android:textStyle="bold"
             android:paddingBottom="8dp"
             android:paddingStart="8dp" />

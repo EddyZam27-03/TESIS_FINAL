@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.ensenando.databinding.FragmentLogrosBinding
 import kotlinx.coroutines.launch
@@ -34,7 +35,13 @@ class LogrosFragment : Fragment() {
     }
     
     private fun setupRecyclerView() {
-        val adapter = LogrosAdapter()
+        val adapter = LogrosAdapter { idLogro ->
+            // ✅ NUEVO: Navegar a detalle de logro
+            findNavController().navigate(
+                com.example.ensenando.R.id.logroDetailFragment,
+                Bundle().apply { putInt("idLogro", idLogro) }
+            )
+        }
         binding.rvLogros.layoutManager = LinearLayoutManager(requireContext())
         binding.rvLogros.adapter = adapter
         

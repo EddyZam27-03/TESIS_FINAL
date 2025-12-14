@@ -53,16 +53,20 @@ class ActivityFragment : Fragment() {
                 "Error: No se proporcionó un ID de gesto válido",
                 android.widget.Toast.LENGTH_SHORT
             ).show()
-            // NO cerrar el fragment, solo mostrar error
             binding.tvGestoNombre.text = "Gesto no encontrado"
             return
         }
         
         android.util.Log.d("ActivityFragment", "Cargando gesto con ID: $idGesto")
-        viewModel.loadGesto(idGesto)
         
         setupObservers()
         setupClickListeners()
+        
+        // ✅ FIX: Esperar a que la vista esté completamente renderizada antes de cargar
+        binding.root.post {
+            android.util.Log.d("ActivityFragment", "Vista lista, cargando gesto...")
+            viewModel.loadGesto(idGesto)
+        }
     }
     
     private fun setupObservers() {
@@ -79,17 +83,66 @@ class ActivityFragment : Fragment() {
                 android.util.Log.d("ActivityFragment", "Gesto cargado: ${gesto.nombre} (ID: ${gesto.idGesto})")
                 binding.tvGestoNombre.text = gesto.nombre
                 
-                // Asegurar que el VideoView esté visible antes de cargar
+                // ✅ NUEVO: Mostrar categoría
+                if (gesto.categoria != null) {
+                    val partes = gesto.categoria.split(" - ")
+                    if (partes.size >= 2) {
+                        binding.chipCategoria.text = "${partes[0]} > ${partes[1]}"
+                        binding.chipCategoria.visibility = ViewGroup.VISIBLE
+                    } else {
+                        binding.chipCategoria.text = gesto.categoria
+                        binding.chipCategoria.visibility = ViewGroup.VISIBLE
+                    }
+                } else {
+                    binding.chipCategoria.visibility = ViewGroup.GONE
+                }
+                
+                // ✅ NUEVO: Mostrar dificultad
+                if (gesto.dificultad != null) {
+                    binding.chipDificultad.text = gesto.dificultad
+                    binding.chipDificultad.visibility = ViewGroup.VISIBLE
+                    // Colores según dificultad
+                    when (gesto.dificultad.uppercase()) {
+                        "FÁCIL", "FACIL" -> {
+                            binding.chipDificultad.setChipBackgroundColorResource(android.R.color.holo_green_light)
+                        }
+                        "MEDIO", "MEDIA" -> {
+                            binding.chipDificultad.setChipBackgroundColorResource(android.R.color.holo_orange_light)
+                        }
+                        "DIFÍCIL", "DIFICIL" -> {
+                            binding.chipDificultad.setChipBackgroundColorResource(android.R.color.holo_red_light)
+                        }
+                    }
+                } else {
+                    binding.chipDificultad.visibility = ViewGroup.GONE
+                }
+                
+                // ✅ FIX: Asegurar que el VideoView esté visible
                 binding.videoView.visibility = View.VISIBLE
                 
-                // ✅ MEJORADO: Usar nuevo sistema de carga de videos
-                lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                // ✅ MEJORADO: Cargar video directamente sin múltiples post
+                lifecycleScope.launch {
                     loadVideoImproved(gesto.nombre)
                 }
             } catch (e: Exception) {
                 android.util.Log.e("ActivityFragment", "Error al procesar gesto cargado", e)
                 binding.tvGestoNombre.text = "Error al cargar gesto"
                 showVideoError()
+            }
+        }
+        
+        // ✅ NUEVO: Observar historial de intentos
+        viewModel.historialIntentos.observe(viewLifecycleOwner) { intentos ->
+            if (intentos.isNotEmpty()) {
+                binding.rvHistorialIntentos.visibility = ViewGroup.VISIBLE
+                binding.tvHistorialVacio.visibility = ViewGroup.GONE
+                val adapter = HistorialIntentoAdapter()
+                binding.rvHistorialIntentos.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(requireContext())
+                binding.rvHistorialIntentos.adapter = adapter
+                adapter.submitList(intentos)
+            } else {
+                binding.rvHistorialIntentos.visibility = ViewGroup.GONE
+                binding.tvHistorialVacio.visibility = ViewGroup.VISIBLE
             }
         }
         
@@ -141,14 +194,20 @@ class ActivityFragment : Fragment() {
     
     /**
      * ✅ MEJORADO: Usa el nuevo sistema VideoLoader
+     * ✅ FIX: Carga en hilo IO y configura en Main cuando la vista esté lista
      */
     private suspend fun loadVideoImproved(gestoNombre: String) {
         try {
+            android.util.Log.d("ActivityFragment", "Buscando video para: $gestoNombre")
             val videoUri = VideoLoader.loadVideoUri(requireContext(), gestoNombre)
             
             withContext(Dispatchers.Main) {
                 if (videoUri != null) {
-                    setupVideoView(videoUri, gestoNombre)
+                    android.util.Log.d("ActivityFragment", "Video encontrado, configurando VideoView... URI: $videoUri")
+                    // ✅ FIX: Usar post solo una vez para asegurar que la vista esté lista
+                    binding.videoView.post {
+                        setupVideoView(videoUri, gestoNombre)
+                    }
                 } else {
                     android.util.Log.w("ActivityFragment", "Video no encontrado: $gestoNombre")
                     showVideoError()
@@ -164,35 +223,70 @@ class ActivityFragment : Fragment() {
     
     /**
      * Configura el VideoView con el URI del video
+     * ✅ FIX: Simplificado para evitar problemas de timing
      */
     private fun setupVideoView(videoUri: android.net.Uri, videoName: String) {
         try {
+            android.util.Log.d("ActivityFragment", "Configurando VideoView con URI: $videoUri")
+            
+            // Asegurar que el VideoView esté visible y tenga tamaño
             binding.videoView.visibility = View.VISIBLE
+            binding.videoView.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+            binding.videoView.layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
             
-            val mediaController = MediaController(requireContext())
-            mediaController.setAnchorView(binding.videoView)
-            binding.videoView.setMediaController(mediaController)
-            binding.videoView.setVideoURI(videoUri)
-            binding.videoView.requestFocus()
-            
+            // Configurar listeners ANTES de establecer el URI
             binding.videoView.setOnPreparedListener { mediaPlayer ->
-                android.util.Log.d("ActivityFragment", "Video preparado: $videoName, duración: ${mediaPlayer.duration}ms")
-                binding.videoView.start()
+                android.util.Log.d("ActivityFragment", "✅ Video preparado: $videoName, duración: ${mediaPlayer.duration}ms, ancho: ${mediaPlayer.videoWidth}, alto: ${mediaPlayer.videoHeight}")
+                videoCargado = true
                 mediaPlayer.isLooping = true
+                
+                // ✅ FIX: Asegurar que el VideoView esté visible antes de iniciar
+                binding.videoView.visibility = View.VISIBLE
+                binding.videoView.start()
+                android.util.Log.d("ActivityFragment", "✅ Video iniciado")
             }
             
             binding.videoView.setOnErrorListener { _, what, extra ->
-                android.util.Log.e("ActivityFragment", "Error al reproducir video: what=$what, extra=$extra")
+                android.util.Log.e("ActivityFragment", "❌ Error al reproducir video: what=$what, extra=$extra")
                 showVideoError()
+                videoCargado = false
                 true
             }
             
             binding.videoView.setOnCompletionListener {
                 android.util.Log.d("ActivityFragment", "Video completado: $videoName")
             }
+            
+            binding.videoView.setOnInfoListener { _, what, extra ->
+                when (what) {
+                    android.media.MediaPlayer.MEDIA_INFO_BUFFERING_START -> {
+                        android.util.Log.d("ActivityFragment", "Video buffering...")
+                    }
+                    android.media.MediaPlayer.MEDIA_INFO_BUFFERING_END -> {
+                        android.util.Log.d("ActivityFragment", "Video buffering completado")
+                    }
+                    android.media.MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START -> {
+                        android.util.Log.d("ActivityFragment", "✅ Video renderizando")
+                    }
+                }
+                false
+            }
+            
+            // Configurar MediaController
+            val mediaController = MediaController(requireContext())
+            mediaController.setAnchorView(binding.videoView)
+            binding.videoView.setMediaController(mediaController)
+            
+            // ✅ FIX: Establecer URI después de configurar listeners
+            binding.videoView.setVideoURI(videoUri)
+            binding.videoView.requestFocus()
+            
+            android.util.Log.d("ActivityFragment", "URI establecido, esperando preparación...")
+            
         } catch (e: Exception) {
             android.util.Log.e("ActivityFragment", "Error al configurar VideoView", e)
             showVideoError()
+            videoCargado = false
         }
     }
     
@@ -469,14 +563,29 @@ class ActivityFragment : Fragment() {
         // Podrías agregar un TextView de error aquí si lo deseas
     }
     
+    private var videoCargado = false
+    
     override fun onResume() {
         super.onResume()
-        // ✅ CORRECCIÓN: Reintentar cargar video si no se ha cargado
+        android.util.Log.d("ActivityFragment", "onResume() - Reintentando cargar video si es necesario")
+        
+        // ✅ FIX: Cargar video en onResume() si no se ha cargado aún
         val gesto = viewModel.gesto.value
-        if (gesto != null && binding.videoView.visibility == View.VISIBLE) {
-            // Solo iniciar si el video está preparado y pausado
-            if (binding.videoView.isPlaying.not() && binding.videoView.currentPosition > 0) {
-                binding.videoView.start()
+        if (gesto != null) {
+            // Verificar si el video ya está cargado usando flag
+            if (!videoCargado) {
+                android.util.Log.d("ActivityFragment", "Video no cargado aún, cargando en onResume()...")
+                binding.root.post {
+                    binding.videoView.visibility = View.VISIBLE
+                    lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                        loadVideoImproved(gesto.nombre)
+                    }
+                }
+            } else {
+                // Video ya cargado, solo reanudar si está pausado
+                if (binding.videoView.isPlaying.not() && binding.videoView.currentPosition > 0) {
+                    binding.videoView.start()
+                }
             }
         }
     }

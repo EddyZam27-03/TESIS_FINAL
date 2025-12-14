@@ -98,6 +98,20 @@ class AdminViewModel(application: Application) : AndroidViewModel(application) {
         _docentes.value = filtrados
     }
     
+    fun buscarRelacion(query: String) {
+        val lista = _relaciones.value ?: return
+        val filtrados = lista.filter { relacion ->
+            // Buscar por nombre de docente o estudiante
+            val docente = _docentes.value?.find { it.id_usuario == relacion.idDocente }
+            val estudiante = _estudiantes.value?.find { it.id_usuario == relacion.idEstudiante }
+            docente?.nombre?.contains(query, ignoreCase = true) == true ||
+            docente?.correo?.contains(query, ignoreCase = true) == true ||
+            estudiante?.nombre?.contains(query, ignoreCase = true) == true ||
+            estudiante?.correo?.contains(query, ignoreCase = true) == true
+        }
+        _relaciones.value = filtrados
+    }
+    
     fun cargarRelaciones() {
         viewModelScope.launch {
             try {

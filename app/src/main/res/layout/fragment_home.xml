@@ -4,13 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_gradient_welcome">
+    android:background="?android:attr/colorBackground">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:elevation="0dp"
-        android:theme="@style/ThemeOverlay.Material3.Dark.ActionBar">
+        android:theme="@style/Theme.Ensenando">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
@@ -37,17 +37,18 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:background="@drawable/bg_card_3d"
-            app:cardElevation="0dp"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="?attr/colorSurface"
                 app:cardCornerRadius="18dp"
-                app:strokeWidth="0dp">
+                app:cardElevation="2dp"
+                app:strokeColor="@color/divider_light"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="20dp">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -56,24 +57,28 @@
                         android:textAppearance="@style/TextAppearance.Headline3"
                         android:textColor="?attr/colorOnSurface" />
 
+                    <!-- Estadísticas en fila horizontal -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:orientation="horizontal">
+                        android:layout_marginTop="20dp"
+                        android:orientation="horizontal"
+                        android:weightSum="3">
 
+                        <!-- Total Gestos -->
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:orientation="vertical">
+                            android:orientation="vertical"
+                            android:gravity="center">
 
                             <TextView
                                 android:id="@+id/tvTotalGestos"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0"
-                                android:textColor="@color/streaming_red"
+                                android:textColor="?attr/colorPrimary"
                                 android:textSize="24sp"
                                 android:textStyle="bold" />
 
@@ -82,14 +87,17 @@
                                 android:layout_height="wrap_content"
                                 android:text="Total Gestos"
                                 android:textAppearance="@style/TextAppearance.Body2"
-                                android:textColor="?attr/colorOnSurface" />
+                                android:textColor="?attr/colorOnSurface"
+                                android:gravity="center" />
                         </LinearLayout>
 
+                        <!-- Aprendidos -->
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:orientation="vertical">
+                            android:orientation="vertical"
+                            android:gravity="center">
 
                             <TextView
                                 android:id="@+id/tvGestosAprendidos"
@@ -105,14 +113,17 @@
                                 android:layout_height="wrap_content"
                                 android:text="Aprendidos"
                                 android:textAppearance="@style/TextAppearance.Body2"
-                                android:textColor="?attr/colorOnSurface" />
+                                android:textColor="?attr/colorOnSurface"
+                                android:gravity="center" />
                         </LinearLayout>
 
+                        <!-- Promedio -->
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:orientation="vertical">
+                            android:orientation="vertical"
+                            android:gravity="center">
 
                             <TextView
                                 android:id="@+id/tvPromedio"
@@ -128,7 +139,8 @@
                                 android:layout_height="wrap_content"
                                 android:text="Promedio"
                                 android:textAppearance="@style/TextAppearance.Body2"
-                                android:textColor="?attr/colorOnSurface" />
+                                android:textColor="?attr/colorOnSurface"
+                                android:gravity="center" />
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>

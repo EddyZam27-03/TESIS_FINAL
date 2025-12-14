@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_gradient_welcome">
+    android:background="?android:attr/colorBackground">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -60,14 +60,22 @@
             android:textAppearance="@style/TextAppearance.Headline3"
             android:textColor="?attr/colorOnSurface" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvDocentes"
+        <!-- ✅ FIX: Recuadro scrollable para mostrar todos los usuarios -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginTop="8dp"
             android:layout_weight="1"
-            android:nestedScrollingEnabled="true"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp">
+            
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvDocentes"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="8dp"
             tools:listitem="@layout/item_docente" />
+        </com.google.android.material.card.MaterialCardView>
 
         <TextView
             android:id="@+id/tvEmpty"

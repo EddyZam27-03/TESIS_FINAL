@@ -24,8 +24,12 @@
         <!-- Text Colors (High Contrast - White on Dark) -->
         <item name="colorOnBackground">@color/text_primary_light</item>
         <item name="colorOnSurface">@color/text_primary_light</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary_light</item>
         <item name="android:textColorPrimary">@color/text_primary_light</item>
         <item name="android:textColorSecondary">@color/text_secondary_light</item>
+        
+        <!-- Card Background -->
+        <item name="cardBackgroundColor">@color/card_background_light</item>
         
         <!-- Error Colors -->
         <item name="colorError">@color/accent_error</item>

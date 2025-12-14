@@ -34,6 +34,16 @@
         tools:layout="@layout/fragment_logros" />
 
     <fragment
+        android:id="@+id/logroDetailFragment"
+        android:name="com.example.ensenando.ui.logros.LogroDetailFragment"
+        android:label="Detalle de Logro"
+        tools:layout="@layout/fragment_logro_detail">
+        <argument
+            android:name="idLogro"
+            app:argType="integer" />
+    </fragment>
+
+    <fragment
         android:id="@+id/buscarDocenteFragment"
         android:name="com.example.ensenando.ui.buscar.BuscarDocenteFragment"
         android:label="Buscar Docente"
@@ -44,6 +54,53 @@
         android:name="com.example.ensenando.ui.admin.AdminFragment"
         android:label="Administración"
         tools:layout="@layout/fragment_admin" />
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.example.ensenando.ui.settings.SettingsFragment"
+        android:label="Configuración"
+        tools:layout="@layout/fragment_settings" />
+
+    <fragment
+        android:id="@+id/docenteDashboardFragment"
+        android:name="com.example.ensenando.ui.docente.DocenteDashboardFragment"
+        android:label="Dashboard Docente"
+        tools:layout="@layout/fragment_docente_dashboard" />
+
+    <fragment
+        android:id="@+id/reportesFragment"
+        android:name="com.example.ensenando.ui.reportes.ReportesFragment"
+        android:label="Reportes"
+        tools:layout="@layout/fragment_reportes">
+        <argument
+            android:name="filtro"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
+
+    <!-- ✅ OPTIMIZADO: Navegación por pasos para mejorar rendimiento -->
+    <fragment
+        android:id="@+id/submodulosFragment"
+        android:name="com.example.ensenando.ui.home.SubmodulosFragment"
+        android:label="Submódulos"
+        tools:layout="@layout/fragment_submodulos">
+        <argument
+            android:name="moduloNombre"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/gestosFragment"
+        android:name="com.example.ensenando.ui.home.GestosFragment"
+        android:label="Gestos"
+        tools:layout="@layout/fragment_gestos">
+        <argument
+            android:name="moduloNombre"
+            app:argType="string" />
+        <argument
+            android:name="submoduloNombre"
+            app:argType="string" />
+    </fragment>
 
     <activity
         android:id="@+id/cameraActivity"

@@ -9,15 +9,15 @@ data class UsuarioGestoSyncItem(
     val id_usuario: Int,
     val id_gesto: Int,
     val porcentaje: Int,
-    val estado: String,
-    val last_updated: Long
+    val estado: String
+    // Nota: last_updated no se envía al servidor (solo para Room local)
 )
 
 data class DocenteEstudianteSyncItem(
     val id_docente: Int,
     val id_estudiante: Int,
-    val estado: String,
-    val last_updated: Long
+    val estado: String
+    // Nota: last_updated no se envía al servidor (solo para Room local)
 )
 
 

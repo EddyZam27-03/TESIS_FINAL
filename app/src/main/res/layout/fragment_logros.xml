@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_gradient_welcome">
+    android:background="?android:attr/colorBackground">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -38,7 +38,7 @@
                 android:layout_height="wrap_content"
                 android:text="Tus Logros"
                 android:textAppearance="@style/TextAppearance.Headline2"
-                android:textColor="@color/streaming_red"
+                android:textColor="?attr/colorPrimary"
             android:elevation="0dp" />
 
             <TextView
@@ -47,7 +47,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="Total: 0 logros desbloqueados"
-                android:textColor="@color/text_secondary"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="14sp" />
 
             <androidx.recyclerview.widget.RecyclerView
@@ -64,7 +64,7 @@
                 android:layout_gravity="center"
                 android:layout_marginTop="32dp"
                 android:text="Aún no has desbloqueado logros"
-                android:textColor="@color/text_secondary"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="16sp"
                 android:visibility="gone" />
 
