@@ -1,6 +1,7 @@
 package com.example.ensenando.ui.buscar
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -9,12 +10,13 @@ import com.example.ensenando.data.remote.model.UsuarioResponse
 import com.example.ensenando.databinding.ItemDocenteBinding
 
 class DocenteAdapter(
-    private val onDocenteClick: (UsuarioResponse) -> Unit
+    private val onDocenteClick: (UsuarioResponse) -> Unit,
+    private val onVerReporte: ((UsuarioResponse) -> Unit)? = null
 ) : ListAdapter<UsuarioResponse, DocenteAdapter.DocenteViewHolder>(DocenteDiffCallback()) {
     
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DocenteViewHolder {
         val binding = ItemDocenteBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return DocenteViewHolder(binding, onDocenteClick)
+        return DocenteViewHolder(binding, onDocenteClick, onVerReporte)
     }
     
     override fun onBindViewHolder(holder: DocenteViewHolder, position: Int) {
@@ -23,7 +25,8 @@ class DocenteAdapter(
     
     class DocenteViewHolder(
         private val binding: ItemDocenteBinding,
-        private val onDocenteClick: (UsuarioResponse) -> Unit
+        private val onDocenteClick: (UsuarioResponse) -> Unit,
+        private val onVerReporte: ((UsuarioResponse) -> Unit)?
     ) : RecyclerView.ViewHolder(binding.root) {
         
         fun bind(docente: UsuarioResponse) {
@@ -32,6 +35,16 @@ class DocenteAdapter(
             
             binding.btnEnviarSolicitud.setOnClickListener {
                 onDocenteClick(docente)
+            }
+            
+            // ✅ NUEVO: Botón Ver Reporte (solo visible si hay callback y el usuario es admin/docente)
+            if (onVerReporte != null) {
+                binding.btnVerReporte.visibility = View.VISIBLE
+                binding.btnVerReporte.setOnClickListener {
+                    onVerReporte?.invoke(docente)
+                }
+            } else {
+                binding.btnVerReporte.visibility = View.GONE
             }
         }
     }

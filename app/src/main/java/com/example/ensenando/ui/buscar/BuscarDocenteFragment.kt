@@ -44,6 +44,13 @@ class BuscarDocenteFragment : Fragment() {
                 if (idDocente != null) {
                     viewModel.enviarSolicitud(idDocente)
                 }
+            },
+            onVerReporte = { docente ->
+                // ✅ NUEVO: Ver reporte del docente
+                val idDocente = docente.id_usuario ?: docente.id
+                if (idDocente != null) {
+                    viewModel.generarReporte(idDocente)
+                }
             }
         )
         binding.rvDocentes.layoutManager = LinearLayoutManager(requireContext())
@@ -76,6 +83,51 @@ class BuscarDocenteFragment : Fragment() {
             // Mostrar/ocultar loading si existe en el layout
             // Por ahora solo deshabilitar botón
             binding.btnBuscar.isEnabled = !isLoading
+        }
+        
+        // ✅ NUEVO: Observar reporte generado
+        viewModel.reporteGenerado.observe(viewLifecycleOwner) { result ->
+            result?.let {
+                it.onSuccess { filePath ->
+                    mostrarReporteEnPantalla(filePath)
+                    viewModel.limpiarReporteGenerado()
+                }.onFailure { exception ->
+                    android.widget.Toast.makeText(
+                        requireContext(),
+                        "Error al generar reporte: ${exception.message}",
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
+                    viewModel.limpiarReporteGenerado()
+                }
+            }
+        }
+    }
+    
+    /**
+     * ✅ NUEVO: Muestra el reporte usando el mismo diálogo
+     */
+    private fun mostrarReporteEnPantalla(filePath: String) {
+        try {
+            val file = java.io.File(filePath)
+            if (!file.exists()) {
+                android.widget.Toast.makeText(
+                    requireContext(),
+                    "El archivo del reporte no existe",
+                    android.widget.Toast.LENGTH_SHORT
+                ).show()
+                return
+            }
+            
+            val dialog = com.example.ensenando.ui.profile.ReporteDialogFragment.newInstance(filePath)
+            dialog.show(parentFragmentManager, "ReporteDialogBuscarDocente")
+            
+        } catch (e: Exception) {
+            android.util.Log.e("BuscarDocenteFragment", "Error al mostrar reporte", e)
+            android.widget.Toast.makeText(
+                requireContext(),
+                "Error al mostrar reporte: ${e.message}",
+                android.widget.Toast.LENGTH_SHORT
+            ).show()
         }
     }
     

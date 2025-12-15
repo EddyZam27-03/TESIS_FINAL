@@ -85,4 +85,9 @@
     <color name="gray_dark">#5C5C5C</color>
     <color name="gray_medium">#9E9E9E</color>
     <color name="gray_light">#DADADA</color>
+    
+    <!-- Gradient Welcome Background - Light Mode -->
+    <color name="gradient_welcome_start">#FFFFFF</color>
+    <color name="gradient_welcome_center">#F5F5F5</color>
+    <color name="gradient_welcome_end">#E3F2FD</color>
 </resources>

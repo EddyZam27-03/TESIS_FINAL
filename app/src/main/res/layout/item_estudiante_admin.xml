@@ -56,6 +56,16 @@
 
         </LinearLayout>
 
+        <!-- ✅ NUEVO: Botón Ver Reporte -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnVerReporte"
+            style="@style/Widget.Ensenando.Button.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:text="Ver Reporte"
+            android:textSize="12sp" />
+
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
 

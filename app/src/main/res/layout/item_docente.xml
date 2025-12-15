@@ -41,13 +41,32 @@
                 android:textColor="?attr/colorOnSurface" />
         </LinearLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnEnviarSolicitud"
-            style="@style/Widget.Ensenando.Button.Secondary"
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="48dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:text="Enviar Solicitud" />
+            android:orientation="vertical"
+            android:gravity="end">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEnviarSolicitud"
+                style="@style/Widget.Ensenando.Button.Secondary"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:text="Enviar Solicitud" />
+
+            <!-- ✅ NUEVO: Botón Ver Reporte (solo visible para admin/docente) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnVerReporte"
+                style="@style/Widget.Ensenando.Button.Primary"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:text="Ver Reporte"
+                android:textSize="12sp"
+                android:visibility="gone" />
+
+        </LinearLayout>
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
