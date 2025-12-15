@@ -114,10 +114,9 @@ class ProgresoRepository(
                 return Result.failure(Exception("No autenticado"))
             }
             
-            // Obtener cambios pendientes
+            // ✅ PASO 1: Enviar cambios pendientes al servidor (App → Servidor)
             val pendientes = usuarioGestoDao.getPendingProgreso()
             
-            // ✅ MEJORADO: Sincronizar usando sync.php (más eficiente)
             if (pendientes.isNotEmpty()) {
                 val syncRequest = com.example.ensenando.data.remote.model.SyncRequest(
                     usuario_gestos = pendientes.map { progreso ->
@@ -126,7 +125,6 @@ class ProgresoRepository(
                             id_gesto = progreso.idGesto,
                             porcentaje = progreso.porcentaje,
                             estado = progreso.estado
-                            // last_updated no se envía (solo para Room local)
                         )
                     },
                     docente_estudiante = null
@@ -135,7 +133,7 @@ class ProgresoRepository(
                 val response = apiService.sync(syncRequest)
                 if (response.isSuccessful) {
                     val syncResponse = response.body()
-                    // ✅ NUEVO: Resolver conflictos
+                    // Resolver conflictos con datos del servidor
                     syncResponse?.usuario_gestos?.forEach { remoteProgreso ->
                         val localProgreso = pendientes.find { 
                             it.idUsuario == remoteProgreso.id_usuario && 
@@ -143,7 +141,7 @@ class ProgresoRepository(
                         }
                         
                         if (localProgreso != null) {
-                            // ✅ Resolver conflicto: mantener porcentaje más alto
+                            // Resolver conflicto: mantener porcentaje más alto
                             val porcentajeFinal = maxOf(localProgreso.porcentaje, remoteProgreso.porcentaje)
                             val estadoFinal = if (porcentajeFinal >= 80) "aprendido" else localProgreso.estado
                             
@@ -160,71 +158,122 @@ class ProgresoRepository(
                 }
             }
             
-            // Método anterior (mantener por compatibilidad)
-            pendientes.forEach { progreso ->
-                try {
-                    val syncRequest = com.example.ensenando.data.remote.model.SyncProgresoRequest(
-                        id_usuario = progreso.idUsuario,
-                        id_gesto = progreso.idGesto,
-                        porcentaje = progreso.porcentaje,
-                        estado = progreso.estado
-                    )
-                    
-                    val response = apiService.syncProgreso(syncRequest)
-                    if (response.isSuccessful && response.body()?.success == true) {
-                        usuarioGestoDao.updateSyncStatus(progreso.idUsuario, progreso.idGesto, "synced")
-                    }
-                } catch (e: Exception) {
-                    // Continuar con el siguiente
-                }
-            }
-            
-            // Obtener progreso actualizado del servidor
-            val response = apiService.getGestosUsuario(idUsuario = idUsuario)
-            if (response.isSuccessful) {
-                val progresosResponse = response.body() ?: emptyList()
-                val progresos = progresosResponse.map { progresoResponse ->
-                    val local = usuarioGestoDao.getProgreso(progresoResponse.id_usuario, progresoResponse.id_gesto)
-                    
-                    // ✅ MEDIUM FIX: Resolución de conflictos correcta
-                    when {
-                        local == null -> {
-                            // No existe local, usar remoto
-                            UsuarioGestoEntity(
-                                idUsuario = progresoResponse.id_usuario,
-                                idGesto = progresoResponse.id_gesto,
-                                porcentaje = progresoResponse.porcentaje,
-                                estado = progresoResponse.estado,
-                                syncStatus = "synced",
-                                lastUpdated = System.currentTimeMillis()
-                            )
-                        }
-                        local.syncStatus == "pending" -> {
-                            // Local tiene cambios pendientes, mantener local
-                            // (ya se sincronizó arriba con syncProgresoRequest)
-                            local
-                        }
-                        else -> {
-                            // Comparar timestamps si el backend los proporciona
-                            // Por ahora, si local tiene syncStatus "synced", usar remoto
-                            // (asumiendo que el servidor tiene la versión más reciente)
-                            UsuarioGestoEntity(
-                                idUsuario = progresoResponse.id_usuario,
-                                idGesto = progresoResponse.id_gesto,
-                                porcentaje = progresoResponse.porcentaje,
-                                estado = progresoResponse.estado,
-                                syncStatus = "synced",
-                                lastUpdated = System.currentTimeMillis()
-                            )
-                        }
-                    }
-                }
-                usuarioGestoDao.insertProgresos(progresos)
-            }
+            // ✅ PASO 2: Descargar TODOS los datos del servidor (Servidor → App)
+            descargarDatosDelServidor(idUsuario)
             
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
+        }
+    }
+    
+    /**
+     * ✅ NUEVO: Descarga todos los datos del servidor y actualiza la base de datos local
+     * Esto asegura que los datos insertados directamente en el servidor se reflejen en la app
+     */
+    private suspend fun descargarDatosDelServidor(idUsuario: Int) {
+        try {
+            // Obtener todos los progresos del servidor usando obtener_progreso_usuarios.php
+            val response = apiService.getProgresoUsuarios(idUsuario = idUsuario)
+            if (response.isSuccessful) {
+                val progresoResponse = response.body()
+                val progresosDetalle = progresoResponse?.progreso ?: emptyList()
+                
+                // Convertir y actualizar en la base de datos local
+                progresosDetalle.forEach { progresoDetalle ->
+                    // ✅ FIX: Validar que los campos nullable no sean null antes de usarlos
+                    val idUsuarioDetalle = progresoDetalle.id_usuario ?: return@forEach
+                    val idGestoDetalle = progresoDetalle.id_gesto ?: return@forEach
+                    
+                    val local = usuarioGestoDao.getProgreso(idUsuarioDetalle, idGestoDetalle)
+                    
+                    when {
+                        local == null -> {
+                            // No existe local, crear desde servidor
+                            val nuevoProgreso = UsuarioGestoEntity(
+                                idUsuario = idUsuarioDetalle,
+                                idGesto = idGestoDetalle,
+                                porcentaje = progresoDetalle.porcentaje,
+                                estado = progresoDetalle.estado,
+                                syncStatus = "synced",
+                                lastUpdated = System.currentTimeMillis()
+                            )
+                            usuarioGestoDao.insertProgreso(nuevoProgreso)
+                        }
+                        local.syncStatus == "pending" -> {
+                            // Local tiene cambios pendientes, comparar y resolver conflicto
+                            val porcentajeFinal = maxOf(local.porcentaje, progresoDetalle.porcentaje)
+                            val estadoFinal = if (porcentajeFinal >= 80) "aprendido" else local.estado
+                            
+                            // Solo actualizar si el servidor tiene un valor mayor
+                            if (progresoDetalle.porcentaje > local.porcentaje) {
+                                usuarioGestoDao.updateProgreso(
+                                    idUsuarioDetalle,
+                                    idGestoDetalle,
+                                    porcentajeFinal,
+                                    estadoFinal,
+                                    System.currentTimeMillis()
+                                )
+                            }
+                        }
+                        else -> {
+                            // Local está sincronizado, actualizar con datos del servidor
+                            if (progresoDetalle.porcentaje != local.porcentaje || progresoDetalle.estado != local.estado) {
+                                val porcentajeFinal = maxOf(local.porcentaje, progresoDetalle.porcentaje)
+                                val estadoFinal = if (porcentajeFinal >= 80) "aprendido" else progresoDetalle.estado
+                                
+                                usuarioGestoDao.updateProgreso(
+                                    idUsuarioDetalle,
+                                    idGestoDetalle,
+                                    porcentajeFinal,
+                                    estadoFinal,
+                                    System.currentTimeMillis()
+                                )
+                                usuarioGestoDao.updateSyncStatus(idUsuarioDetalle, idGestoDetalle, "synced")
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // También obtener usando getGestosUsuario como respaldo
+            val responseGestos = apiService.getGestosUsuario(idUsuario = idUsuario)
+            if (responseGestos.isSuccessful) {
+                val progresosResponse = responseGestos.body() ?: emptyList()
+                progresosResponse.forEach { progresoResponse ->
+                    val local = usuarioGestoDao.getProgreso(progresoResponse.id_usuario, progresoResponse.id_gesto)
+                    
+                    if (local == null) {
+                        // Crear nuevo progreso desde servidor
+                        val nuevoProgreso = UsuarioGestoEntity(
+                            idUsuario = progresoResponse.id_usuario,
+                            idGesto = progresoResponse.id_gesto,
+                            porcentaje = progresoResponse.porcentaje,
+                            estado = progresoResponse.estado,
+                            syncStatus = "synced",
+                            lastUpdated = System.currentTimeMillis()
+                        )
+                        usuarioGestoDao.insertProgreso(nuevoProgreso)
+                    } else if (local.syncStatus != "pending") {
+                        // Actualizar si no hay cambios pendientes
+                        val porcentajeFinal = maxOf(local.porcentaje, progresoResponse.porcentaje)
+                        val estadoFinal = if (porcentajeFinal >= 80) "aprendido" else progresoResponse.estado
+                        
+                        if (progresoResponse.porcentaje != local.porcentaje || progresoResponse.estado != local.estado) {
+                            usuarioGestoDao.updateProgreso(
+                                progresoResponse.id_usuario,
+                                progresoResponse.id_gesto,
+                                porcentajeFinal,
+                                estadoFinal,
+                                System.currentTimeMillis()
+                            )
+                            usuarioGestoDao.updateSyncStatus(progresoResponse.id_usuario, progresoResponse.id_gesto, "synced")
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("ProgresoRepository", "Error al descargar datos del servidor", e)
         }
     }
     

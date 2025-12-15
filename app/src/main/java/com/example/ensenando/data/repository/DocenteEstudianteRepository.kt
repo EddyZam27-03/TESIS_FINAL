@@ -136,6 +136,33 @@ class DocenteEstudianteRepository(
                 return Result.failure(Exception("Usuario no identificado"))
             }
             
+            // ✅ PASO 1: Enviar relaciones pendientes al servidor (App → Servidor)
+            val pendientes = docenteEstudianteDao.getPendingRelaciones()
+            if (pendientes.isNotEmpty()) {
+                val syncRequest = com.example.ensenando.data.remote.model.SyncRequest(
+                    usuario_gestos = null,
+                    docente_estudiante = pendientes.map { relacion ->
+                        com.example.ensenando.data.remote.model.DocenteEstudianteSyncItem(
+                            id_docente = relacion.idDocente,
+                            id_estudiante = relacion.idEstudiante,
+                            estado = relacion.estado
+                        )
+                    }
+                )
+                
+                val response = apiService.sync(syncRequest)
+                if (response.isSuccessful) {
+                    pendientes.forEach { relacion ->
+                        docenteEstudianteDao.updateSyncStatus(
+                            relacion.idDocente,
+                            relacion.idEstudiante,
+                            "synced"
+                        )
+                    }
+                }
+            }
+            
+            // ✅ PASO 2: Descargar relaciones del servidor (Servidor → App)
             // Obtener relaciones según el rol
             when (rol) {
                 "estudiante" -> {

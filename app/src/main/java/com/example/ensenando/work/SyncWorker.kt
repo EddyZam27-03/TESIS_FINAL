@@ -26,20 +26,22 @@ class SyncWorker(
             val docenteEstudianteRepository = DocenteEstudianteRepository(applicationContext, database, apiService)
             val gestoRepository = GestoRepository(applicationContext, database, apiService)
             
-            // Sincronizar gestos primero
+            // ✅ PASO 1: Sincronizar gestos primero (catálogo)
             gestoRepository.syncGestos()
             
-            // Sincronizar progreso
+            // ✅ PASO 2: Sincronizar progreso (bidireccional: App → Servidor y Servidor → App)
+            // Esto ahora descarga TODOS los datos del servidor, incluyendo los insertados directamente
             progresoRepository.syncProgreso()
             
-            // Sincronizar relaciones docente-estudiante
+            // ✅ PASO 3: Sincronizar relaciones docente-estudiante (bidireccional)
             docenteEstudianteRepository.syncRelaciones()
             
+            android.util.Log.d("SyncWorker", "Sincronización completada exitosamente")
             Result.success()
         } catch (e: Exception) {
+            android.util.Log.e("SyncWorker", "Error en sincronización", e)
             Result.retry()
         }
     }
 }
-
 

@@ -78,9 +78,11 @@ class GestosFragment : Fragment() {
                 )
             },
             onPracticarClick = { idGesto ->
-                val intent = android.content.Intent(requireContext(), com.example.ensenando.ui.camera.CameraActivity::class.java)
-                intent.putExtra("idGesto", idGesto)
-                startActivity(intent)
+                // ✅ FIX: Ir primero a la pantalla de referencia del video (ActivityFragment)
+                findNavController().navigate(
+                    com.example.ensenando.R.id.activityFragment,
+                    Bundle().apply { putInt("idGesto", idGesto) }
+                )
             },
             progresoMap = emptyMap() // Se actualizará después
         )

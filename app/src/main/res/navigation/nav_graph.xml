@@ -55,11 +55,6 @@
         android:label="Administración"
         tools:layout="@layout/fragment_admin" />
 
-    <fragment
-        android:id="@+id/settingsFragment"
-        android:name="com.example.ensenando.ui.settings.SettingsFragment"
-        android:label="Configuración"
-        tools:layout="@layout/fragment_settings" />
 
     <fragment
         android:id="@+id/docenteDashboardFragment"

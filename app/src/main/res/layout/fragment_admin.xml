@@ -121,20 +121,37 @@
                         android:textAppearance="@style/TextAppearance.Headline3"
                         android:textColor="?attr/colorPrimary" />
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/tilBuscarEstudiante"
-                        style="@style/Widget.Ensenando.TextInputLayout.OutlinedBox"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:hint="Buscar estudiante">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etBuscarEstudiante"
-                            android:layout_width="match_parent"
+                        android:orientation="horizontal">
+                        
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/tilBuscarEstudiante"
+                            style="@style/Widget.Ensenando.TextInputLayout.OutlinedBox"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:inputType="text" />
-                    </com.google.android.material.textfield.TextInputLayout>
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            android:hint="Buscar estudiante">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etBuscarEstudiante"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="text" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                        
+                        <!-- ✅ NUEVO: Botón de buscar estudiante -->
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnBuscarEstudiante"
+                            style="@style/Widget.Ensenando.Button.Primary"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Buscar"
+                            app:icon="@android:drawable/ic_menu_search" />
+                    </LinearLayout>
 
                     <!-- ✅ FIX: Recuadro scrollable para mostrar todos los estudiantes -->
                     <com.google.android.material.card.MaterialCardView
